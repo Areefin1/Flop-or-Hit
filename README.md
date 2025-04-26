@@ -2,9 +2,9 @@
 
 Submitted by: **Faisal Areefin**
 
-This web app: **Flop or Hit is a social media app surrounding the idea of upcoming movies and whether or not it will flop or hit! Users can create, edit, like, comment, poll, and delete posts any time they wish!**
+This web app: **Flop or Hit is a social media app surrounding the idea of upcoming movies and whether or not it will flop or hit! Users can create, edit, like, comment, and delete posts any time they wish!**
 
-Time spent: **2** days spent in total
+Time spent: **2.5** days spent in total
 
 ## Required Features
 
@@ -16,19 +16,19 @@ The following **required** functionality is completed:
   - Forms should have the *option* for users to add: 
     - additional textual content
     - an image added as an external image URL
-- [ ] **Web app includes a home feed displaying previously created posts**
+- [x] **Web app includes a home feed displaying previously created posts**
   - Web app must include home feed displaying previously created posts
   - By default, each post on the posts feed should show only the post's:
     - creation time
     - title 
     - upvotes count
   - Clicking on a post should direct the user to a new page for the selected post
-- [ ] **Users can view posts in different ways**
+- [x] **Users can view posts in different ways**
   - Users can sort posts by either:
     -  creation time
     -  upvotes count
   - Users can search for posts by title
-- [ ] **Users can interact with each post in different ways**
+- [x] **Users can interact with each post in different ways**
   - The app includes a separate post page for each created post when clicked, where any additional information is shown, including:
     - content
     - image
@@ -69,7 +69,7 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='https://github.com/Areefin1/finalproject/blob/main/Final%20Project%20walkthrough.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 <!-- Replace this with whatever GIF tool you used! -->
 Recorded with OBS Studio, then converted mp4 to gif online  
@@ -80,7 +80,7 @@ Recorded with OBS Studio, then converted mp4 to gif online
 
 ## Notes
 
-Running into a lot of Supabase RLS headaches.
+Running into a lot of Supabase RLS headaches. Getting everything to work was definitely the hardest challenge.
 
 ## License
 
