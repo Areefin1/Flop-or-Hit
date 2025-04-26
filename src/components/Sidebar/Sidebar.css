@@ -14,8 +14,8 @@
     margin: 16px;
     border-radius: 16px;
     height: calc(100vh - 32px);
-    top: 0;
-    left: 0;
+    top: 70px;
+    left: -10px;
 }
 
 .sidebar-nav .nav-link {

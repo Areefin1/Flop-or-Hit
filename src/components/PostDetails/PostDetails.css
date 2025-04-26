@@ -1,0 +1,114 @@
+.post-details-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align to top */
+    gap: 40px; /* Space between post and comments */
+    height: 90vh;
+    padding: 20px;
+    margin-top: 10px;
+  }
+  
+  .post-details-card {
+    width: 500px;
+    max-width: 650px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: black;
+  }
+  
+  .post-details-card h3 {
+    margin-top: 0;
+  }
+  
+  .post-details-card p {
+    margin: 10px 0;
+    line-height: 1.5;
+  }
+  
+  .post-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-top: 10px;
+  }
+  
+  .like-section {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+  }
+  
+  .like-button {
+    margin-right: 10px;
+    padding: 4px 12px;
+    background-color: #28a745; /* Green */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .like-button:hover {
+    background-color: #218838;
+  }
+  
+  .number-of-likes {
+    font-weight: bold;
+  }
+  
+  .comment-section {
+    display: flex;
+    flex-direction: column;
+    width: 300px; /* Adjust width for the right side */
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+  }
+  
+  .comment-section h4 {
+    margin: 0 0 10px 0;
+    color: black;
+  }
+  
+  .comment-input {
+    resize: none;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+  }
+  
+  .comment-button {
+    padding: 8px 12px;
+    background-color: #007bff; /* Blue */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: fit-content;
+  }
+  
+  .comment-button:hover {
+    background-color: #0056b3;
+  }
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: flex-start;
+}
+
+.comment-item {
+    padding: 8px;
+    color: #333;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    background-color: #ffffff;
+}
+  

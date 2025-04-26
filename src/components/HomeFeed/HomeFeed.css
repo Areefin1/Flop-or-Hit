@@ -1,13 +1,13 @@
 .home-feed-container {
     display: flex;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 40px;
 }
 
 .feed-lane {
     display: flex;
     flex-direction: column;
-    width: 600px; /* Adjust to your design */
+    width: 450px; /* Adjust to your design */
     gap: 20px;
     overflow-y: auto;
     max-height: 90vh;
@@ -25,6 +25,7 @@
 .post-card h3 {
     margin: 0 0 10px 0;
     color: black;
+    text-align: left;
 }
 
 .post-card p {
@@ -85,3 +86,17 @@
 .number-of-likes {
     color: black;
 }
+
+.feed-lane::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+}
+
+.post-time {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 5px;
+    text-align: left;
+  }
+  
+
+

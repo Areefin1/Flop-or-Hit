@@ -1,0 +1,108 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+.topbar {
+    background: #333;
+}
+
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgb(39, 189, 139);
+    padding: 15px 200px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+    display: flex; /* Flex container */
+    align-items: center; /* Vertically center items */
+    justify-content: space-between; /* Push items left and right */
+}
+
+.nav .links-nav {
+    display: flex;
+    align-items: center;
+    column-gap: 20px;
+    list-style: none;
+}
+
+.nav {
+    justify-content: space-between;
+}
+
+.nav h2 {
+    font-size: 22px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.nav .search-icon {
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.nav .search-box {
+    position: relative;
+    height: 45px;
+    max-width: 555px;
+    width: 100%;
+    margin: 0 20px;
+}
+
+.search-box input {
+    height: 100%;
+    width: 100%;
+    background-color: #ffffff;
+    border: none;
+    outline: none;
+    border-radius: 6px;
+    padding: 0 15px 0 45px;
+    color: black;
+}
+
+.search-box .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgb(39, 189, 139);
+    font-size: 24px;
+    pointer-events: none; /* So it doesn't block clicks to input */
+}
+
+@media screen and (max-width: 1160px) {
+    .nav {
+        padding: 15px 100px;
+    }
+
+    .nav .search-box {
+        right: 850px;
+    }
+}
+
+.search-box {
+    position: relative;
+    height: 45px;
+    max-width: 555px;
+    width: 100%;
+    margin: 0 20px;
+}
+
+.sorting {
+    height: 45px;
+    max-width: 75px;
+    width: 100%;
+    margin: 0 25px;
+    background: white;
+    color: black;
+    border-radius: 6px;
+    outline: none;
+    border: none;
+    font-family: "Poppins", sans-serif;
+    cursor: pointer;
+}
