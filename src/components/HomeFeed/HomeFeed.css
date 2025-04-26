@@ -1,0 +1,87 @@
+.home-feed-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.feed-lane {
+    display: flex;
+    flex-direction: column;
+    width: 600px; /* Adjust to your design */
+    gap: 20px;
+    overflow-y: auto;
+    max-height: 90vh;
+    padding: 10px;
+}
+
+.post-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.post-card h3 {
+    margin: 0 0 10px 0;
+    color: black;
+}
+
+.post-card p {
+    margin: 0 0 10px 0;
+    color: black;
+}
+
+.post-image {
+    width: 100%;
+    height: auto;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+.comment-section {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.comment-input {
+    resize: none;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    color: black;
+    background: white;
+}
+
+.comment-button {
+    margin-top: 5px;
+    padding: 8px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.comment-button:hover {
+    background-color: #0056b3;
+  }
+
+.like-button {
+    margin-right: 10px;
+    padding: 3px 10px;
+    background-color: #28a745; /* Green */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.like-button:hover {
+    background-color: #218838;
+}
+
+.number-of-likes {
+    color: black;
+}

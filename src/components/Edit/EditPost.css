@@ -1,0 +1,69 @@
+.edit-post-container {
+    padding: 20px;
+}
+
+.post-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.edit-post-card {
+    width: 300px;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.edit-post-card h3 {
+    color: black;
+}
+
+.edit-post-card p {
+    color: black;
+}
+
+.edit-post-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+
+.edit-post-card input,
+.edit-post-card textarea {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ffffff;
+  border-radius: 5px;
+}
+
+.edit-post-card button {
+    padding: 3px 8px;
+    background-color: rgb(39, 189, 139);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.edit-post-card button:hover {
+    background-color: #218838;
+}
+
+.edit-post-card .delete-button {
+    margin-left: 10px;
+    padding: 3px 8px;
+    background-color: #dc3545; /* Red */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+  
+.edit-post-card .delete-button:hover {
+    background-color: #c82333;
+}
