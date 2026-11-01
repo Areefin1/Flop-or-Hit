@@ -1,99 +1,169 @@
-# Web Development Final Project - *Flop or Hit*
+# 🎬 Flop or Hit
 
-Submitted by: **Faisal Areefin**
+**A full-stack social media application where movie enthusiasts can discuss upcoming releases, share opinions, and vote on whether a movie will be a flop or a hit.**
 
-This web app: **Flop or Hit is a social media app surrounding the idea of upcoming movies and whether or not it will flop or hit! Users can create, edit, like, comment, and delete posts any time they wish!**
+Built with React, JavaScript, Supabase Authentication, and PostgreSQL.
 
-Time spent: **2.5** days spent in total
+## 🎥 Video Walkthrough
 
-## Required Features
+![Flop or Hit Application Walkthrough](Final%20Project%20Walk%20through.gif)
 
-The following **required** functionality is completed:
+*A walkthrough demonstrating the original application, including post creation, navigation, and social interactions.*
 
+## 📖 Overview
 
-- [x] **Web app includes a create form that allows the user to create posts**
-  - Form requires users to add a post title
-  - Forms should have the *option* for users to add: 
-    - additional textual content
-    - an image added as an external image URL
-- [x] **Web app includes a home feed displaying previously created posts**
-  - Web app must include home feed displaying previously created posts
-  - By default, each post on the posts feed should show only the post's:
-    - creation time
-    - title 
-    - upvotes count
-  - Clicking on a post should direct the user to a new page for the selected post
-- [x] **Users can view posts in different ways**
-  - Users can sort posts by either:
-    -  creation time
-    -  upvotes count
-  - Users can search for posts by title
-- [x] **Users can interact with each post in different ways**
-  - The app includes a separate post page for each created post when clicked, where any additional information is shown, including:
-    - content
-    - image
-    - comments
-  - Users can leave comments underneath a post on the post page
-  - Each post includes an upvote button on the post page. 
-    - Each click increases the post's upvotes count by one
-    - Users can upvote any post any number of times
+Flop or Hit is a movie-focused social media application that allows authenticated users to create posts, discuss upcoming movies, leave comments, and upvote content.
 
-- [x] **A post that a user previously created can be edited or deleted from its post pages**
-  - After a user creates a new post, they can go back and edit the post
-  - A previously created post can be deleted from its post page
+The application combines an interactive React frontend with Supabase backend services for user authentication and persistent PostgreSQL data storage.
 
-The following **optional** features are implemented:
+Originally developed as an independent final project for CodePath's Web Development program in 2025, Flop or Hit is being revisited and expanded with improvements to its backend, security, and user experience.
 
+## ✨ Features
 
-- [ ] Web app implements pseudo-authentication
-  - Users can only edit and delete posts or delete comments by entering the secret key, which is set by the user during post creation
-  - **or** upon launching the web app, the user is assigned a random user ID. It will be associated with all posts and comments that they make and displayed on them
-  - For both options, only the original user author of a post can update or delete it
-- [ ] Users can repost a previous post by referencing its post ID. On the post page of the new post
-  - Users can repost a previous post by referencing its post ID
-  - On the post page of the new post, the referenced post is displayed and linked, creating a thread
-- [ ] Users can customize the interface
-  - e.g., selecting the color scheme or showing the content and image of each post on the home feed
-- [ ] Users can add more characterics to their posts
-  - Users can share and view web videos
-  - Users can set flags such as "Question" or "Opinion" while creating a post
-  - Users can filter posts by flags on the home feed
-  - Users can upload images directly from their local machine as an image file
-- [ ] Web app displays a loading animation whenever data is being fetched
+### 🔐 User Authentication
+- User registration and login through Supabase Authentication
+- Persistent authentication sessions
+- Logout functionality
+- Protected application routes
+- User-associated post ownership
 
-The following **additional** features are implemented:
+### 📝 Post Management
+- Create posts with a required title
+- Add optional text content and image URLs
+- Browse posts in a home feed
+- View individual posts with their full content
+- Edit and delete posts created by the authenticated user
+- Persist posts in PostgreSQL
 
-* [ ] List anything else that you added to improve the site's functionality!
+### 💬 Social Interactions
+- Add comments to posts
+- Persist comments in the database
+- Upvote posts with database-backed like counts
+- View post engagement and discussions
 
-## Video Walkthrough
+### 🔎 Search and Sorting
+- Search posts by title
+- Sort posts by newest or oldest
+- Sort posts by upvote count
 
-Here's a walkthrough of implemented user stories:
+### 🛡️ Database Security
+- PostgreSQL relational tables with primary and foreign key constraints
+- Row Level Security (RLS) enabled for posts and comments
+- Ownership-based policies restricting post creation, editing, and deletion
+- Authentication-based access policies for reading and creating comments
 
-<img src='https://github.com/Areefin1/finalproject/blob/main/Final%20Project%20Walk%20through.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+## 🛠️ Tech Stack
 
-<!-- Replace this with whatever GIF tool you used! -->
-Recorded with OBS Studio, then converted mp4 to gif online  
-<!-- Recommended tools:
-[Kap](https://getkap.co/) for macOS
-[ScreenToGif](https://www.screentogif.com/) for Windows
-[peek](https://github.com/phw/peek) for Linux. -->
+| Technology | Purpose |
+|---|---|
+| React | Interactive frontend |
+| JavaScript | Application logic |
+| CSS | Styling and layout |
+| React Router | Navigation and protected routes |
+| Supabase Auth | User authentication and session management |
+| Supabase | Backend database access |
+| PostgreSQL | Persistent relational data |
+| Git & GitHub | Version control |
 
-## Notes
+## 🏗️ Architecture
 
-Running into a lot of Supabase RLS headaches. Getting everything to work was definitely the hardest challenge.
+Flop or Hit uses a React frontend connected directly to Supabase backend services.
 
-## License
+**Frontend — React**
 
-    Copyright [yyyy] [name of copyright owner]
+Handles navigation, forms, post feeds, search, sorting, and user interactions.
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+**Authentication — Supabase Auth**
 
-        http://www.apache.org/licenses/LICENSE-2.0
+Manages user registration, login, logout, and authentication sessions.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+**Database — PostgreSQL**
+
+Stores posts, comments, user associations, timestamps, and upvote counts.
+
+**Authorization — PostgreSQL Row Level Security**
+
+Enforces database-level permissions for accessing and modifying content.
+
+The application uses Supabase's client library to communicate with backend services without requiring a separately hosted Express server.
+
+## 🗄️ Database Design
+
+### Posts
+
+The `flop-or-hit` table stores:
+- Post ID
+- Author's user ID
+- Title
+- Optional content
+- Optional image URL
+- Upvote count
+- Creation timestamp
+
+### Comments
+
+The `comments` table stores:
+- Comment ID
+- Associated post ID
+- Author's user ID
+- Comment content
+- Creation timestamp
+
+Comments reference their associated posts through a foreign key relationship. Deleting a post also deletes its associated comments.
+
+### Access Control
+
+Row Level Security policies restrict post modifications to the authenticated post owner.
+
+Comment creation is restricted to authenticated users creating comments under their own user identity.
+
+These policies provide database-level authorization in addition to the application's frontend route protection.
+
+## 🚧 Current Development Status
+
+The original version was completed in 2025 and included authentication, post CRUD operations, comments, upvotes, search, sorting, and database integration.
+
+The original Supabase project was subsequently paused after an extended period of inactivity. Its database backup has been recovered, and restoration and further development are planned.
+
+The original walkthrough above demonstrates the previously working application. A new live deployment is not yet available.
+
+## 🗺️ Planned Improvements
+
+- [ ] Restore the PostgreSQL database and authentication configuration
+- [ ] Verify Row Level Security policies using multiple test accounts
+- [ ] Implement comment editing and deletion
+- [ ] Replace the simple upvote counter with user-specific likes and unlikes
+- [ ] Prevent duplicate likes by the same user
+- [ ] Add direct image uploads with object storage
+- [ ] Improve loading states, error handling, and form validation
+- [ ] Improve responsive design and mobile usability
+- [ ] Add automated tests for important user interactions
+- [ ] Deploy the application publicly
+
+## 🧠 Engineering Challenges and Lessons
+
+**Authentication and authorization**
+
+One of the most challenging parts of the original implementation was configuring Supabase Row Level Security policies while ensuring authenticated users could perform the intended database operations.
+
+This project provided hands-on experience connecting user authentication to persistent database records and enforcing ownership rules.
+
+**Relational data modeling**
+
+Posts and comments are stored in related PostgreSQL tables, allowing comments to be associated with individual posts and authors.
+
+**Frontend and backend integration**
+
+The application uses asynchronous database requests to retrieve, create, update, and delete data while keeping the React interface synchronized with successful operations.
+
+## 📚 Project Background
+
+Flop or Hit began as my independent final project for CodePath's Web Development program in 2025.
+
+I designed and implemented the original application from scratch over approximately 2.5 days, including its React frontend, Supabase integration, authentication, and database functionality.
+
+I am now revisiting the project to strengthen its security, expand its features, and improve its overall engineering quality.
+
+## 📄 License
+
+License information will be finalized before public release.
