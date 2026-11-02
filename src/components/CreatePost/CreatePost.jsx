@@ -13,6 +13,8 @@ function CreatePost ()
 
     const handleCreatePost = async (e) => {
         e.preventDefault();
+        setError("");
+        setSuccess("");
 
         if(!title.trim())
         {
@@ -29,12 +31,11 @@ function CreatePost ()
         }
 
         const { error: insertError } = await supabase
-            .from("flop-or-hit")
+            .from("posts")
             .insert([
                 {
-                    title,
-                    content: content || null,
-                    image_url: imageUrl || null,
+                    title: title.trim(),
+                    content: content.trim() || null,
                     user_id: userData.user.id,
                 },
             ]);
@@ -61,7 +62,14 @@ function CreatePost ()
                     {success && <p style={{ color: "green" }}>{success}</p>}
 
                     <label htmlFor="title">Title</label>
-                    <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+                    <input 
+                        type="text" 
+                        id="title" 
+                        value={title} 
+                        onChange={(e) => setTitle(e.target.value)} 
+                        required
+                        maxLength={100} 
+                    />
                     <label htmlFor="content">Content (optional)</label>
                     <textarea id="content" rows="4" value={content} onChange={(e) => setContent(e.target.value)} />
 
