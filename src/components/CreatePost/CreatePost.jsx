@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "../../client";
+import { createPost } from "../../services/service"
 import "./CreatePost.css";
 
 
@@ -22,34 +22,23 @@ function CreatePost ()
             return;
         }
 
-        const { data: userData, error: userError } = await supabase.auth.getUser();
+        try
+        {
+            await createPost(
+                title.trim(),
+                content.trim() || null
+            );
 
-        if(userError || !userData.user)
-        {
-            setError("You must be logged in to create a post.");
-            return;
-        }
-
-        const { error: insertError } = await supabase
-            .from("posts")
-            .insert([
-                {
-                    title: title.trim(),
-                    content: content.trim() || null,
-                    user_id: userData.user.id,
-                },
-            ]);
-        
-        if(insertError)
-        {
-            setError(insertError.message);
-        }
-        else
-        {
+            // We reach here ONLY if createPost succeeded.
             setSuccess("Post created successfully!");
             setTitle("");
             setContent("");
             setImageUrl("");
+        }
+        catch(error)
+        {
+            // We reach here if createPost throws an error.
+            setError(error.message);
         }
     };
 
