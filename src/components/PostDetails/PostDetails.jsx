@@ -1,16 +1,18 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { supabase } from "../../client";
 import "./PostDetails.css";
+import { addComment, 
+  applyCommentReaction, 
+  getSpecificPost, 
+  updateComment, 
+  deleteComment 
+} from "../../services/service";
 
 function PostDetails() {
   const { postId } = useParams();
-
   const [post, setPost] = useState(null);
-  const [comments, setComments] = useState([]);
   const [commentInput, setCommentInput] = useState("");
-  const [currentUserId, setCurrentUserId] = useState(null);
 
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingContent, setEditingContent] = useState("");
@@ -21,91 +23,46 @@ function PostDetails() {
 
   // READ: Fetch the post and its reactions
   async function fetchPost() {
-    const { data, error } = await supabase
-      .from("posts")
-      .select(`
-        id,
-        user_id,
-        title,
-        content,
-        image_path,
-        created_at,
-        profiles!posts_user_id_fkey (
-          username,
-          display_name
-        ),
-        post_reactions (
-          user_id,
-          reaction
-        )
-      `)
-      .eq("id", postId)
-      .single();
+      try {
+        const dataPost = await getSpecificPost(postId);
 
-    if (error) {
-      setError(error.message);
-    } else {
-      setPost(data);
-    }
-  }
-
-  // READ: Fetch comments and their authors
-  async function fetchComments() {
-    const { data, error } = await supabase
-      .from("comments")
-      .select(`
-        id,
-        post_id,
-        user_id,
-        content,
-        created_at,
-        profiles!comments_user_id_fkey (
-          username,
-          display_name
-        ),
-        comment_reactions (
-          user_id,
-          reaction
-        )
-      `)
-      .eq("post_id", postId)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      setError(error.message);
-    } else {
-      setComments(data ?? []);
-    }
+        setPost(dataPost);
+      } catch (error) {
+        setError(error.message);
+      }
   }
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadPage() {
-      setLoading(true);
-      setError("");
-      setPost(null);
-      setComments([]);
+        setLoading(true);
+        setError("");
+        setPost(null);
 
-      const { data: userData } = await supabase.auth.getUser();
+        try {
+            const dataPost = await getSpecificPost(postId);
 
-      if (!cancelled) {
-        setCurrentUserId(userData.user?.id ?? null);
-      }
-
-      await Promise.all([fetchPost(), fetchComments()]);
-
-      if (!cancelled) {
-        setLoading(false);
-      }
+            if (!cancelled) {
+                setPost(dataPost);
+            }
+        } catch (error) {
+            if (!cancelled) {
+                setError(error.message);
+            }
+        } finally {
+            if (!cancelled) {
+                setLoading(false);
+            }
+        }
     }
 
     loadPage();
 
     return () => {
-      cancelled = true;
+        cancelled = true;
     };
-  }, [postId]);
+}, [postId]);
 
   // CREATE: Add a comment
   async function handleCommentSubmit() {
@@ -117,35 +74,21 @@ function PostDetails() {
     setError("");
 
     try {
-      const { data: userData, error: userError } =
-        await supabase.auth.getUser();
+      const data = await addComment(postId, content);
 
-      if (userError || !userData.user) {
-        setError("You must be logged in to comment.");
-        return;
-      }
-
-      const { error: insertError } = await supabase
-        .from("comments")
-        .insert({
-          post_id: postId,
-          user_id: userData.user.id,
-          content: content
-        });
-
-      if (insertError) {
-        setError(insertError.message);
-        return;
-      }
-
+      setPost(prevPost => ({
+        ...prevPost, 
+        comments: [data, ...prevPost.comments]
+      }));
       setCommentInput("");
-      await fetchComments();
-    } finally {
+    } catch (error) {
+        setError(error.message);
+    }
+     finally {
       setBusy(false);
     }
   }
 
-  
   async function handleCommentReaction(commentId, reactionType) {
     if (busy) return;
 
@@ -153,82 +96,27 @@ function PostDetails() {
     setError("");
 
     try {
-      const { data: userData, error: userError } =
-        await supabase.auth.getUser();
-
-      if (userError || !userData.user) {
-        setError("You must be logged in to react.");
-        return;
-      }
-
-      const currentUserId = userData.user.id;
-
-      const comment = comments.find(
-        (comment) => comment.id === commentId
-      );
-
-      if (!comment) {
-        setError("Comment not found.");
-        return;
-      }
-
-      const existingReaction = (
-        comment.comment_reactions ?? []
-      ).find(
-        (reaction) => reaction.user_id === currentUserId
-      );
-
-      // INSERT: No reaction exists
-      if (!existingReaction) {
-        const { error } = await supabase
-          .from("comment_reactions")
-          .insert({
-            user_id: currentUserId,
-            comment_id: commentId,
-            reaction: reactionType
-          });
-
-        if (error) {
-          setError(error.message);
-          return;
-        }
-      }
-
-      // DELETE: Same reaction clicked again
-      else if (existingReaction.reaction === reactionType) {
-        const { error } = await supabase
-          .from("comment_reactions")
-          .delete()
-          .eq("user_id", currentUserId)
-          .eq("comment_id", commentId);
-
-        if (error) {
-          setError(error.message);
-          return;
-        }
-      }
-
-      // UPDATE: Switch between like and dislike
-      else {
-        const { error } = await supabase
-          .from("comment_reactions")
-          .update({ reaction: reactionType })
-          .eq("user_id", currentUserId)
-          .eq("comment_id", commentId);
-
-        if (error) {
-          setError(error.message);
-          return;
-        }
-      }
-
-      // Refresh comments to show updated reaction counts
-      await fetchComments();
-    } finally {
+        const dataComment = await applyCommentReaction(commentId, reactionType);
+        setPost(prevPost => ({
+            ...prevPost,
+            comments: prevPost.comments.map(comment => {
+                if (comment.id === dataComment.id) {
+                    return {
+                        ...comment,
+                        likeCount: comment.likeCount + dataComment.likeDelta,
+                        dislikeCount: comment.dislikeCount + dataComment.dislikeDelta
+                    };
+                }
+                return comment;
+            })
+        }));
+    } catch (error) {
+        setError(error.message);
+    }
+     finally {
       setBusy(false);
     }
   }
-
 
   // Start editing a comment
   function startEditing(comment) {
@@ -246,39 +134,31 @@ function PostDetails() {
     setError("");
 
     try {
-      const { data: userData, error: userError } =
-        await supabase.auth.getUser();
+        const data = await updateComment(commentId, content);
 
-      if (userError || !userData.user) {
-        setError("You must be logged in.");
-        return;
-      }
-
-      const { data, error: updateError } = await supabase
-        .from("comments")
-        .update({ content: content })
-        .eq("id", commentId)
-        .eq("user_id", userData.user.id)
-        .select("id");
-
-      if (updateError) {
-        setError(updateError.message);
-        return;
-      }
-
-      if (!data?.length) {
-        setError("Comment not found or you cannot edit it.");
-        return;
-      }
+        setPost(prevPost => ({
+          ...prevPost,
+          comments: prevPost.comments.map(comment => {
+              if (comment.id === data.id) {
+                  return {
+                      ...comment,
+                      content: data.content
+                  };
+              }
+              return comment;
+          })
+      }));
 
       setEditingCommentId(null);
       setEditingContent("");
-      await fetchComments();
-    } finally {
+    } catch (error) 
+    {
+        setError(error.message);
+    }
+    finally {
       setBusy(false);
     }
   }
-
   // DELETE: Remove a comment
   async function handleCommentDelete(commentId) {
     if (busy) return;
@@ -293,32 +173,16 @@ function PostDetails() {
     setError("");
 
     try {
-      const { data: userData, error: userError } =
-        await supabase.auth.getUser();
+      const data = await deleteComment(commentId);
 
-      if (userError || !userData.user) {
-        setError("You must be logged in.");
-        return;
-      }
-
-      const { data, error: deleteError } = await supabase
-        .from("comments")
-        .delete()
-        .eq("id", commentId)
-        .eq("user_id", userData.user.id)
-        .select("id");
-
-      if (deleteError) {
-        setError(deleteError.message);
-        return;
-      }
-
-      if (!data?.length) {
-        setError("Comment not found or you cannot delete it.");
-        return;
-      }
-
-      await fetchComments();
+      setPost(prevPost => ({
+        ...prevPost,
+        comments: prevPost.comments.filter(comment =>
+            (comment.id !== data.id)
+          )
+      }));
+    } catch(error) {
+        setError(error.message);
     } finally {
       setBusy(false);
     }
@@ -336,60 +200,39 @@ function PostDetails() {
     );
   }
 
-  const reactions = post.post_reactions ?? [];
-
-  const likeCount = reactions.filter(
-    (reaction) => reaction.reaction === "like"
-  ).length;
-
-  const dislikeCount = reactions.filter(
-    (reaction) => reaction.reaction === "dislike"
-  ).length;
-
   return (
     <div className="post-details-container">
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       <div className="post-details-card">
-        <p>@{post.profiles?.username}</p>
+        <p>@{post.username}</p>
 
         <h3>{post.title}</h3>
 
         {post.content && <p>{post.content}</p>}
 
         <div className="like-section">
-          <span>👍 {likeCount} Likes</span>
-          <span>👎 {dislikeCount} Dislikes</span>
+          <span>👍 {post.likeCount} Likes</span>
+          <span>👎 {post.dislikeCount} Dislikes</span>
         </div>
       </div>
 
       <div className="comment-section">
-        <h4>Comments ({comments.length})</h4>
+        <h4>Comments ({post.comments.length})</h4>
 
         <div className="comments-list">
-          {comments.length === 0 && (
+          {post.comments.length === 0 && (
             <p>No comments yet. Be the first!</p>
           )}
 
-          {comments.map((comment) => {
-            const isOwner = comment.user_id === currentUserId;
+          {post.comments.map((comment) => {
             const isEditing = editingCommentId === comment.id;
-
-            const reactions = comment.comment_reactions ?? [];
-
-            const likeCount = reactions.filter(
-              (reaction) => reaction.reaction === "like"
-            ).length;
-
-            const dislikeCount = reactions.filter(
-              (reaction) => reaction.reaction === "dislike"
-            ).length;
 
             return (
               <div key={comment.id} className="comment-item">
                 <p>
                   <strong>
-                    @{comment.profiles?.username ?? "Unknown"}
+                    @{comment.username ?? "Unknown"}
                   </strong>
                 </p>
 
@@ -426,7 +269,7 @@ function PostDetails() {
                   <>
                     <p>{comment.content}</p>
 
-                    {isOwner && (
+                    {comment.isOwner && (
                       <div className="comment-actions">
                         <button
                           type="button"
@@ -454,7 +297,7 @@ function PostDetails() {
                       disabled={busy}
                       onClick={() => handleCommentReaction(comment.id, "like")}
                     >
-                      👍 {likeCount}
+                      👍 {comment.likeCount}
                     </button>
 
                     <button
@@ -462,7 +305,7 @@ function PostDetails() {
                       disabled={busy}
                       onClick={() => handleCommentReaction(comment.id, "dislike")}
                     >
-                      👎 {dislikeCount}
+                      👎 {comment.dislikeCount}
                     </button>
                   </div>
                   </>

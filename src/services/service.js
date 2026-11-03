@@ -285,6 +285,7 @@ async function applyReaction(postId, reactionType) {
 
 async function getSpecificPost(postId) {
     try {
+        const user = await getAuthUserData();
         const { data, error } = await supabase
             .from("posts")
             .select(`
@@ -372,7 +373,8 @@ async function getSpecificPost(postId) {
                 username: commentProfile?.username ?? null,
                 display_name: commentProfile?.display_name ?? null,
                 likeCount: commentLikeCount,
-                dislikeCount: commentDislikeCount
+                dislikeCount: commentDislikeCount,
+                isOwner: comment.user_id === user?.id
             };
         });
 
@@ -429,7 +431,8 @@ async function addComment(postId, content) {
             username: profiles?.username ?? null,
             display_name: profiles?.display_name ?? null,
             likeCount: 0,
-            dislikeCount: 0
+            dislikeCount: 0,
+            isOwner: true
         };
 
     } catch (error) {
@@ -467,6 +470,7 @@ async function updateComment(commentId, content) {
     }
 }
 
+
 async function deleteComment(commentId) 
 {
     try {
@@ -495,6 +499,7 @@ async function deleteComment(commentId)
         throw new Error(`Failed to delete comment: ${error.message}`);
     }    
 }
+
 
 async function applyCommentReaction(commentId, reactionType)
 {
@@ -624,6 +629,15 @@ async function applyCommentReaction(commentId, reactionType)
 }
 
 
-
-
-export { createPost, getAllUserPosts, updatePost, deletePost, getAllPosts, applyReaction, getSpecificPost, addComment, deleteComment, applyCommentReaction };
+export { createPost, 
+    getAllUserPosts, 
+    updatePost, 
+    deletePost, 
+    getAllPosts, 
+    applyReaction, 
+    getSpecificPost, 
+    addComment, 
+    updateComment, 
+    deleteComment, 
+    applyCommentReaction 
+};
