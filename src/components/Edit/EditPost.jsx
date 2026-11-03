@@ -1,16 +1,12 @@
-
 import { useEffect, useState } from "react";
-import { supabase } from "../../client";
 import "./EditPost.css";
+import { getAllUserPosts, updatePost, deletePost } from "../../services/service";
 
 function EditPost() {
   const [posts, setPosts] = useState([]);
-  const [currentUserId, setCurrentUserId] = useState(null);
-
   const [editingPostId, setEditingPostId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
-
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -21,31 +17,16 @@ function EditPost() {
       setLoading(true);
       setError("");
 
-      const { data: userData, error: userError } =
-        await supabase.auth.getUser();
+      try {
+        const postsArray = await getAllUserPosts();
+        setPosts(postsArray);
 
-      if (userError || !userData.user) {
-        setError("You must be logged in.");
+      } catch (error) {
+        setError(error.message);
+      }
+      finally {
         setLoading(false);
-        return;
       }
-
-      const userId = userData.user.id;
-      setCurrentUserId(userId);
-
-      const { data, error: fetchError } = await supabase
-        .from("posts")
-        .select("id, user_id, title, content, created_at")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false });
-
-      if (fetchError) {
-        setError(fetchError.message);
-      } else {
-        setPosts(data ?? []);
-      }
-
-      setLoading(false);
     }
 
     fetchUserPosts();
@@ -64,41 +45,24 @@ function EditPost() {
     const title = editTitle.trim();
     const content = editContent.trim();
 
-    if (!title || busy || !currentUserId) return;
+    if (!title || busy) return;
 
     setBusy(true);
     setError("");
 
     try {
-      const { data, error: updateError } = await supabase
-        .from("posts")
-        .update({
-          title: title,
-          content: content || null
-        })
-        .eq("id", editingPostId)
-        .eq("user_id", currentUserId)
-        .select("id");
-
-      if (updateError) {
-        setError(updateError.message);
-        return;
-      }
-
-      if (!data?.length) {
-        setError("Post not found or you cannot edit it.");
-        return;
-      }
+      const dataPost = await updatePost(editingPostId, title, content);
 
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
-          post.id === editingPostId
-            ? { ...post, title, content: content || null }
+          post.id === dataPost.id
+            ? { ...post, title: dataPost.title, content: dataPost.content }
             : post
         )
       );
-
       setEditingPostId(null);
+    } catch(error) {
+      setError(error.message);
     } finally {
       setBusy(false);
     }
@@ -106,7 +70,7 @@ function EditPost() {
 
   // DELETE: Remove a post
   async function handleDelete(postId) {
-    if (busy || !currentUserId) return;
+    if (busy) return;
 
     const confirmed = window.confirm(
       "Delete this post? Its comments and reactions may also be permanently deleted."
@@ -118,26 +82,13 @@ function EditPost() {
     setError("");
 
     try {
-      const { data, error: deleteError } = await supabase
-        .from("posts")
-        .delete()
-        .eq("id", postId)
-        .eq("user_id", currentUserId)
-        .select("id");
-
-      if (deleteError) {
-        setError(deleteError.message);
-        return;
-      }
-
-      if (!data?.length) {
-        setError("Post not found or you cannot delete it.");
-        return;
-      }
+      const dataPostId = await deletePost(postId);
 
       setPosts((prevPosts) =>
-        prevPosts.filter((post) => post.id !== postId)
+        prevPosts.filter((post) => post.id !== dataPostId)
       );
+    } catch(error) {
+        setError(error.message);
     } finally {
       setBusy(false);
     }
