@@ -129,16 +129,19 @@ The original walkthrough above demonstrates the previously working application. 
 
 ## 🗺️ Planned Improvements
 
-- [ ] Restore the PostgreSQL database and authentication configuration
-- [ ] Verify Row Level Security policies using multiple test accounts
-- [ ] Implement comment editing and deletion
-- [ ] Replace the simple upvote counter with user-specific likes and unlikes
-- [ ] Prevent duplicate likes by the same user
-- [ ] Add direct image uploads with object storage
+- [x] Restore/create new PostgreSQL database and authentication configuration
+- [x] Verify Row Level Security policies using multiple test accounts
+- [x] Implement comment editing and deletion
+- [x] Replace the simple upvote counter with user-specific likes and unlikes
+- [x] Prevent duplicate likes by the same user
+- [x] Add direct image uploads with object storage
 - [ ] Improve loading states, error handling, and form validation
 - [ ] Improve responsive design and mobile usability
 - [ ] Add automated tests for important user interactions
 - [ ] Deploy the application publicly
+- [ ] Create user profile
+- [ ] Edit user profile
+- [ ] View Feed without an account
 
 ## 🧠 Engineering Challenges and Lessons
 
