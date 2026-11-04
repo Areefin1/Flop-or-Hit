@@ -1,13 +1,15 @@
-import { useState } from "react";
-import { createPost } from "../../services/service"
+import { useState, useRef } from "react";
+import { createPost, uploadPostImage } from "../../services/service"
 import "./CreatePost.css";
+
 
 
 function CreatePost ()
 {
+    const fileInputRef = useRef(null);
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
-    const [imageUrl, setImageUrl] = useState("");
+    const [imageFile, setImageFile] = useState(null);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
@@ -24,16 +26,25 @@ function CreatePost ()
 
         try
         {
+            let imagePath = null;
+
+            if(imageFile)
+            {
+                imagePath = await uploadPostImage(imageFile);
+            }
+
             await createPost(
                 title.trim(),
-                content.trim() || null
+                content.trim() || null,
+                imagePath
             );
 
             // We reach here ONLY if createPost succeeded.
             setSuccess("Post created successfully!");
             setTitle("");
             setContent("");
-            setImageUrl("");
+            setImageFile(null);
+            fileInputRef.current.value = "";
         }
         catch(error)
         {
@@ -62,8 +73,14 @@ function CreatePost ()
                     <label htmlFor="content">Content (optional)</label>
                     <textarea id="content" rows="4" value={content} onChange={(e) => setContent(e.target.value)} />
 
-                    <label htmlFor="imageUrl">Image URL (optional)</label>
-                    <input type="text" id="imageUrl" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+                    <label htmlFor="imageFile">Image (optional)</label>
+                    <input
+                        ref={fileInputRef} 
+                        type="file"
+                        id="imageFile"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+                    />
 
                     <button type="submit">Create Post</button>
                 </form>
