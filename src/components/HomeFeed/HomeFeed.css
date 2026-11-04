@@ -34,10 +34,12 @@
 }
 
 .post-image {
+    display: block;
     width: 100%;
-    height: auto;
-    margin-top: 10px;
-    border-radius: 5px;
+    max-height: 350px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-top: 12px;
 }
 
 .comment-section {

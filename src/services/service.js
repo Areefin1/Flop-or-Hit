@@ -2,7 +2,7 @@ import { supabase } from "../client";
 import getAuthUserData from "./userData";
 
 // I will include image_path in the parameter once Supabase Storange is set up
-async function createPost(title, content)
+async function createPost(title, content, image_path = null)
 {
     try {
         const user = await getAuthUserData();
@@ -12,7 +12,8 @@ async function createPost(title, content)
             .insert([{
                 title: title,
                 content: content,
-                user_id: user.id
+                user_id: user.id,
+                image_path: image_path
             }]);
 
         if(insertError)
@@ -24,6 +25,70 @@ async function createPost(title, content)
     }
 }
 
+async function uploadPostImage(file)
+{
+    try {
+        const user = await getAuthUserData();
+
+        const fileExtension = file.name.split(".").pop();
+        const uniqueFileName = `${crypto.randomUUID()}.${fileExtension}`;
+        const filePath = `${user.id}/${uniqueFileName}`;
+
+        const { data, error: uploadError } = await supabase.storage
+            .from("post-images")
+            .upload(filePath, file, {
+                contentType: file.type 
+            });
+
+        if(uploadError)
+        {
+            throw new Error(`Storage UPLOAD error: ${uploadError.message}`);
+        }
+
+        return data.path;
+    } catch (error) {
+        throw new Error(`Failed to upload post image: ${error.message}`);
+    }
+}
+
+
+async function deletePostImage(imagePath) {
+    try {
+        if (!imagePath) {
+            return;
+        }
+
+        const user = await getAuthUserData();
+
+        if (!imagePath.startsWith(`${user.id}/`)) {
+            throw new Error("Cannot delete an image outside your own folder.");
+        }
+
+        const { error: deleteError } = await supabase.storage
+            .from("post-images")
+            .remove([imagePath]);
+
+        if (deleteError) {
+            throw new Error(`Storage DELETE error: ${deleteError.message}`);
+        }
+
+    } catch (error) {
+        throw new Error(`Failed to delete post image: ${error.message}`);
+    }
+}
+
+
+function getPostImageUrl(imagePath)
+{
+    if(!imagePath) return null;
+
+    const { data } = supabase.storage
+        .from("post-images")
+        .getPublicUrl(imagePath);
+    
+    return data.publicUrl;
+}
+
 async function getAllUserPosts()
 {
     try {
@@ -31,7 +96,7 @@ async function getAllUserPosts()
 
         const { data, error: fetchError } = await supabase
             .from("posts")
-            .select("id, user_id, title, content, created_at")
+            .select("id, user_id, title, content, created_at, image_path")
             .eq("user_id", user.id)
             .order("created_at", {ascending: false});
 
@@ -47,24 +112,29 @@ async function getAllUserPosts()
     }
 }
 
-async function updatePost(postId, title, content)
+async function updatePost(postId, title, content, imagePath = undefined)
 {
     try {
         const user = await getAuthUserData();
 
-        const { data, error: updateError } = await supabase
-        .from("posts")
-        .update({
+        const updates = {
             title: title,
             content: content
-        })
-        .eq("id", postId)
-        .eq("user_id", user.id)
-        .select("id, title, content")
-        .single();
+        };
 
-        if(updateError)
-        {
+        if (imagePath !== undefined) {
+            updates.image_path = imagePath;
+        }
+
+        const { data, error: updateError } = await supabase
+            .from("posts")
+            .update(updates)
+            .eq("id", postId)
+            .eq("user_id", user.id)
+            .select("id, title, content, image_path")
+            .single();
+
+        if (updateError) {
             throw new Error(`Database UPDATE error: ${updateError.message}`);
         }
 
@@ -74,11 +144,24 @@ async function updatePost(postId, title, content)
     }
 }
 
-async function deletePost(postId)
-{
+
+async function deletePost(postId) {
     try {
         const user = await getAuthUserData();
 
+        // 1. Find the post and its image path.
+        const { data: post, error: fetchError } = await supabase
+            .from("posts")
+            .select("id, image_path")
+            .eq("id", postId)
+            .eq("user_id", user.id)
+            .single();
+
+        if (fetchError) {
+            throw new Error(`Database SELECT error: ${fetchError.message}`);
+        }
+
+        // 2. Delete the database row.
         const { data, error: deleteError } = await supabase
             .from("posts")
             .delete()
@@ -87,16 +170,29 @@ async function deletePost(postId)
             .select("id")
             .single();
 
-        if(deleteError)
-        {
+        if (deleteError) {
             throw new Error(`Database DELETE error: ${deleteError.message}`);
         }
 
+        // 3. Clean up the associated image, if one exists.
+        if (post.image_path) {
+            try {
+                await deletePostImage(post.image_path);
+            } catch (imageError) {
+                console.error(
+                    "Post deleted, but image cleanup failed:",
+                    imageError
+                );
+            }
+        }
+
         return data.id;
+
     } catch (error) {
-        throw new Error(`Could not find post or you cannot delete it. ${error.message}`);
+        throw new Error(`Failed to delete post: ${error.message}`);
     }
 }
+
 
 async function getAllPosts()
 {
@@ -639,5 +735,8 @@ export { createPost,
     addComment, 
     updateComment, 
     deleteComment, 
-    applyCommentReaction 
+    applyCommentReaction,
+    uploadPostImage,
+    getPostImageUrl,
+    deletePostImage 
 };

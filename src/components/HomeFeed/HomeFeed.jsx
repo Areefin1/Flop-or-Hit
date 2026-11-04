@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./HomeFeed.css";
 import { useNavigate } from "react-router-dom";
-import { applyReaction, getAllPosts } from "../../services/service";
+import { applyReaction, getAllPosts, getPostImageUrl } from "../../services/service";
 import formatTimeAgo from "../../helpers/formatTimeAgo.js";
 
 function HomeFeed({ searchTerm, sortOption }) {
@@ -103,6 +103,14 @@ function HomeFeed({ searchTerm, sortOption }) {
                                 <h3>{post.title}</h3>
 
                                 {post.content && <p>{post.content}</p>}
+
+                                {post.image_path && (
+                                    <img 
+                                        src={getPostImageUrl(post.image_path)}
+                                        alt={post.title}
+                                        className="post-image"
+                                    />
+                                )}
 
                                 <div className="like-section">
                                     <button

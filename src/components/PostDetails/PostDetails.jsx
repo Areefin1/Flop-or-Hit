@@ -6,7 +6,8 @@ import { addComment,
   applyCommentReaction, 
   getSpecificPost, 
   updateComment, 
-  deleteComment 
+  deleteComment,
+  getPostImageUrl 
 } from "../../services/service";
 
 function PostDetails() {
@@ -210,6 +211,14 @@ function PostDetails() {
         <h3>{post.title}</h3>
 
         {post.content && <p>{post.content}</p>}
+
+        {post.image_path && (
+            <img 
+                src={getPostImageUrl(post.image_path)}
+                alt={post.title}
+                className="post-image"
+            />
+        )}
 
         <div className="like-section">
           <span>👍 {post.likeCount} Likes</span>
