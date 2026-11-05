@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./EditPost.css";
-import { getAllUserPosts, updatePost, deletePost, getPostImageUrl, uploadPostImage, deletePostImage } from "../../services/service";
+import { getAllUserPosts, updatePost, deletePost, getPostImageUrl } from "../../services/service";
 
 function EditPost() {
   const [posts, setPosts] = useState([]);
@@ -11,6 +11,7 @@ function EditPost() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [editImageFile, setEditImageFile] = useState(null);
+  const [removePostImage, setRemovePostImage] = useState(false);
 
   // READ: Fetch only the logged-in user's posts
   useEffect(() => {
@@ -40,6 +41,7 @@ function EditPost() {
     setEditContent(post.content ?? "");
     setError("");
     setEditImageFile(null);
+    setRemovePostImage(false);
   }
 
   // UPDATE: Save changes to the post
@@ -57,21 +59,17 @@ function EditPost() {
               (post) => post.id === editingPostId
           );
 
+          // 1. Existing post image path
           const oldImagePath = existingPost?.image_path ?? null;
 
-          let newImagePath = undefined;
-
-          // 1. Upload replacement image, if selected
-          if (editImageFile) {
-              newImagePath = await uploadPostImage(editImageFile);
-          }
-
-          // 2. Update database
+          // 2. Save post changes
           const dataPost = await updatePost(
               editingPostId,
               title,
               content,
-              newImagePath
+              oldImagePath,
+              removePostImage,
+              editImageFile
           );
 
           // 3. Update React state
@@ -91,19 +89,7 @@ function EditPost() {
           // 4. Exit editing mode
           setEditingPostId(null);
           setEditImageFile(null);
-
-          // 5. Delete old image after successful replacement
-          if (newImagePath && oldImagePath) {
-              try {
-                  await deletePostImage(oldImagePath);
-              } catch (cleanupError) {
-                  console.error(
-                      "Post updated, but old image cleanup failed:",
-                      cleanupError
-                  );
-              }
-          }
-
+          setRemovePostImage(false);
       } catch (error) {
           setError(error.message);
       } finally {
@@ -166,13 +152,53 @@ function EditPost() {
                   value={editContent}
                   onChange={(e) => setEditContent(e.target.value)}
                 />
+
+                {post.image_path && !removePostImage && (
+                  <>
+                      <img
+                          src={getPostImageUrl(post.image_path)}
+                          alt={post.title}
+                          className="post-image"
+                      />
+
+                      <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => {
+                              setRemovePostImage(true);
+                              setEditImageFile(null);
+                          }}
+                      >
+                          Remove Image
+                      </button>
+                  </>
+                )}
+
+                {post.image_path && removePostImage && (
+                    <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => setRemovePostImage(false)}
+                    >
+                        Undo Remove Image
+                    </button>
+                )}
+
                 <label htmlFor="editImageFile">Replace image (optional)</label>
 
                 <input
                   type="file"
                   id="editImageFile"
                   accept="image/jpeg,image/png,image/webp"
-                  onChange={(e) => setEditImageFile(e.target.files?.[0] ?? null)}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] ?? null;
+
+                    setEditImageFile(file);
+
+                    if (file) {
+                        setRemovePostImage(false);
+                    }
+                }}
                 />
 
                 <button
@@ -189,6 +215,7 @@ function EditPost() {
                   onClick={() => {
                     setEditingPostId(null);
                     setEditImageFile(null);
+                    setRemovePostImage(false);
                   }}
                 >
                   Cancel

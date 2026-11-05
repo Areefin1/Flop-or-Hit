@@ -10,6 +10,8 @@ import PostDetails from './components/PostDetails/PostDetails';
 import { supabase } from './client';
 import Topbar from './components/Topbar/Topbar';
 import SignUp from './components/Login/SignUp';
+import UserProfile from './components/UserProfile/UserProfile';
+import EditProfile from './components/EditProfile/EditProfile';
 
 function App() {
 
@@ -43,7 +45,7 @@ function App() {
     <>
       <div className='app-container' style={{ display: 'flex'}}>
         {isAuthenticated && <Sidebar />}
-        <div style={{ marginLeft: isAuthenticated ? '200px' : '0', flex: 1 }}>
+        <div className='main-content' style={{ marginLeft: isAuthenticated ? '200px' : '0', flex: 1 }}>
           {isAuthenticated && <Topbar onSearchChange={setSearchTerm} onSortChange={setSortOption} />}
         <Routes>
           <Route path="/signup" element={isAuthenticated ? <Navigate to="/home" /> : <SignUp />}/>
@@ -53,6 +55,8 @@ function App() {
           <Route path='/edit' element={isAuthenticated ? <EditPost /> : <Navigate to="/login" />} />
           <Route path='/post/:postId' element={isAuthenticated ? <PostDetails /> : <Navigate to="/login" />} />
           <Route path='*' element={<Navigate to="/login" />} />
+          <Route path='/profile' element={isAuthenticated ? <UserProfile /> : <Navigate to="/login"/>} />
+          <Route path='/profile/edit' element={isAuthenticated ? <EditProfile /> : <Navigate to="/login"/>} />
         </Routes>
         </div>
       </div>
