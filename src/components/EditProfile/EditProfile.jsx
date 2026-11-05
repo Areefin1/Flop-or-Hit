@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyProfile, getAvatarImageUrl, updateProfile } from "../../services/service";
@@ -12,6 +13,7 @@ function EditProfile()
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [removeAvatar, setRemoveAvatar] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -22,14 +24,14 @@ function EditProfile()
 
                 setEditDisplayName(data.display_name);
                 setEditBio(data.bio ?? "");
-                setCurrentAvatarPath(data.avatar_path)
+                setCurrentAvatarPath(data.avatar_path);
             } catch (error) {
                 setError(error.message);
-            }
-            finally {
+            } finally {
                 setLoading(false);
             }
         }
+
         fetchUserProfile();
     }, []);
 
@@ -49,38 +51,75 @@ function EditProfile()
                 displayName: editDisplayName.trim(),
                 bio: editBio,
                 oldImagePath: currentAvatarPath,
-                newAvatar: editImageProfile
+                newAvatar: editImageProfile,
+                removeAvatar: removeAvatar
             });
-       
+
             navigate("/profile");
 
         } catch (error) {
             setError(error.message);
         } finally {
             setSaving(false);
+        }
     }
-}
-    
+
     return (
         <div className="edit-profile">
             {error && <p className="error-message">{error}</p>}
+
             <h2>Edit Profile</h2>
+
             <div className="change-profile-picture">
-                {currentAvatarPath && (
-                    <img
-                        src={getAvatarImageUrl(currentAvatarPath)}
-                        alt="Current profile avatar"
-                        className="profile-picture"
-                    />
+                {currentAvatarPath && !removeAvatar && (
+                    <>
+                        <img
+                            src={getAvatarImageUrl(currentAvatarPath)}
+                            alt="Current profile avatar"
+                            className="profile-picture"
+                        />
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setRemoveAvatar(true);
+                                setEditImageProfile(null);
+                            }}
+                        >
+                            Remove Photo
+                        </button>
+                    </>
                 )}
-                <label htmlFor="editImageProfile">Change Photo (optional)</label>
+
+                {currentAvatarPath && removeAvatar && (
+                    <button
+                        type="button"
+                        onClick={() => setRemoveAvatar(false)}
+                    >
+                        Undo Remove Photo
+                    </button>
+                )}
+
+                <label htmlFor="editImageProfile">
+                    Change Photo (optional)
+                </label>
+
                 <input
-                  type="file"
-                  id="editImageProfile"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={(e) => setEditImageProfile(e.target.files?.[0] ?? null)}
+                    type="file"
+                    id="editImageProfile"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(e) => {
+                        const file = e.target.files?.[0] ?? null;
+
+                        setEditImageProfile(file);
+
+                        if (file) {
+                            setRemoveAvatar(false);
+                        }
+                    }}
                 />
             </div>
+
             <div className="edit-profile-field">
                 <label htmlFor="editDisplayName">Display Name</label>
                 <input
@@ -91,6 +130,7 @@ function EditProfile()
                     onChange={(e) => setEditDisplayName(e.target.value)}
                 />
             </div>
+
             <div className="edit-profile-field">
                 <label htmlFor="editBio">Bio</label>
                 <textarea
@@ -101,15 +141,17 @@ function EditProfile()
                     onChange={(e) => setEditBio(e.target.value)}
                 />
             </div>
+
             <div className="edit-profile-actions">
                 <button
                     type="button"
                     onClick={handleSaveChanges}
                     disabled={saving || loading || !!error}
                     className="save-button"
-                    >
+                >
                     {saving ? "Saving..." : "Save Changes"}
                 </button>
+
                 <button
                     type="button"
                     onClick={() => navigate("/profile")}

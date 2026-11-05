@@ -55,7 +55,7 @@ async function getAllUserPosts()
     return getAllPosts(user.id);
 }
 
-async function updatePost(postId, title, content, imagePath = undefined)
+async function updatePost(postId, title, content, oldImagePath, removePostImage, imageFile = undefined)
 {
     try {
         const user = await getAuthUserData();
@@ -65,20 +65,66 @@ async function updatePost(postId, title, content, imagePath = undefined)
             content: content
         };
 
-        if (imagePath !== undefined) {
-            updates.image_path = imagePath;
+        let newImagePath = undefined;
+
+        if (imageFile) {
+            newImagePath = await uploadPostImage(imageFile);
+            updates.image_path = newImagePath;
         }
 
-        const { data, error: updateError } = await supabase
-            .from("posts")
-            .update(updates)
-            .eq("id", postId)
-            .eq("user_id", user.id)
-            .select("id, title, content, image_path")
-            .single();
+        if(removePostImage)
+        {
+            updates.image_path = null;
+        }
 
-        if (updateError) {
-            throw new Error(`Database UPDATE error: ${updateError.message}`);
+        // 2. Update the database
+        let data;
+
+        try {
+            const { data: updatedPost, error: updateError } = await supabase
+                .from("posts")
+                .update(updates)
+                .eq("user_id", user.id)
+                .eq("id", postId)
+                .select("id, title, content, image_path, created_at")
+                .single();
+
+            if (updateError)
+            {
+                throw new Error(`Database UPDATE error: ${updateError.message}`);
+            }
+
+            data = updatedPost;
+
+        } catch (updateError) {
+
+            // Database failed: delete newly uploaded post image
+            if (newImagePath)
+            {
+                try {
+                    await deletePostImage(newImagePath);
+                } catch (cleanupError) {
+                    console.error(
+                        "Failed to clean up newly uploaded post image:",
+                        cleanupError
+                    );
+                }
+            }
+
+            throw updateError;
+        }
+
+        // 3. Database succeeded: delete old post image
+        if ((newImagePath || removePostImage) && oldImagePath)
+        {
+            try {
+                await deletePostImage(oldImagePath);
+            } catch (cleanupError) {
+                console.error(
+                    "Failed to clean up old uploaded post image:",
+                    cleanupError
+                );
+            }
         }
 
         return data;
@@ -687,7 +733,7 @@ async function getMyProfile()
     }
 }
 
-async function updateProfile({displayName, bio, newAvatar, oldImagePath})
+async function updateProfile({displayName, bio, newAvatar, oldImagePath, removeAvatar})
 {
     try {
         const user = await getAuthUserData();
@@ -710,6 +756,11 @@ async function updateProfile({displayName, bio, newAvatar, oldImagePath})
         if (bio !== undefined)
         {
             updates.bio = bio;
+        }
+
+        if(removeAvatar)
+        {
+            updates.avatar_path = null;
         }
 
         if (Object.keys(updates).length === 0)
@@ -754,7 +805,7 @@ async function updateProfile({displayName, bio, newAvatar, oldImagePath})
         }
 
         // 3. Database succeeded: delete old avatar
-        if (newImagePath && oldImagePath)
+        if ((newImagePath || removeAvatar) && oldImagePath)
         {
             try {
                 await deleteAvatar(oldImagePath);
