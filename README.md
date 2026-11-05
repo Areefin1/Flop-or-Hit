@@ -139,8 +139,8 @@ The original walkthrough above demonstrates the previously working application. 
 - [ ] Improve responsive design and mobile usability
 - [ ] Add automated tests for important user interactions
 - [ ] Deploy the application publicly
-- [ ] Create user profile
-- [ ] Edit user profile
+- [x] Create user profile
+- [x] Edit user profile
 - [ ] View Feed without an account
 
 ## 🧠 Engineering Challenges and Lessons
