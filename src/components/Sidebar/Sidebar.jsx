@@ -41,6 +41,12 @@ function Sidebar() {
                   <span className="nav-label">Create</span>
                 </Link>
               </li>
+                <li className="nav-item">
+                <Link to="/profile" className="nav-link">
+                  <span className="material-symbols-outlined">account_circle</span>
+                  <span className="nav-label">Profile</span>
+                </Link>
+              </li>
               <li className="nav-item">
                 <Link to="/edit" className="nav-link">
                   <span className="material-symbols-rounded">edit</span>

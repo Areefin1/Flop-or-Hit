@@ -1,0 +1,184 @@
+
+/* Main profile header */
+.profile-banner {
+    max-width: 1000px;
+    margin: 30px auto 40px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* Square profile picture */
+.profile-picture {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 2px solid #e5e5e5;
+}
+
+/* Display name */
+.profile-banner h4 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 10px 0 0;
+    color: black;
+}
+
+/* Username */
+.profile-banner h5 {
+    font-size: 15px;
+    font-weight: 400;
+    color: #777;
+    margin: 0;
+}
+
+/* Biography */
+.profile-banner p {
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 450px;
+    margin: 12px 0;
+    white-space: pre-wrap;
+    color: black;
+}
+
+/* Edit Profile button */
+.profile-banner button {
+    background: #222;
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.profile-banner button:hover {
+    background: #444;
+}
+
+/* Instagram-style post grid */
+.post-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    max-width: 1000px;
+    width: calc(100% - 40px);
+    margin: 0 auto 60px;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+    box-sizing: border-box;
+}
+
+/* Individual post tile */
+.post-grid .post-card {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #f1f1f1;
+    cursor: pointer;
+}
+
+/* Post image fills its square */
+.post-grid .post-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Hide long descriptions in grid view */
+.post-grid .post-card > p {
+    display: none;
+}
+
+/* Post title overlay */
+.post-grid .post-card h3 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    color: white;
+    font-size: 15px;
+    margin: 0;
+    padding: 35px 12px 12px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+    overflow-wrap: anywhere;
+}
+
+/* Likes and dislikes appear on hover */
+.post-grid .like-section {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    background: rgba(0, 0, 0, 0.65);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.post-grid .post-card:hover .like-section {
+    opacity: 1;
+}
+
+/* Text-only posts remain readable */
+.post-grid .post-card:not(:has(img)) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    background: #e8f7f1;
+}
+
+.post-grid .post-card:not(:has(img)) h3 {
+    position: static;
+    background: none;
+    color: #222;
+    text-align: center;
+    padding: 0;
+    font-size: 18px;
+}
+
+/* Responsive grid */
+@media (max-width: 700px) {
+    .profile-banner {
+        padding: 20px 12px;
+    }
+
+    .profile-picture {
+        width: 100px;
+        height: 100px;
+    }
+
+    .post-grid {
+        width: calc(100% - 20px);
+        gap: 2px;
+    }
+
+    .post-grid .post-card h3 {
+        font-size: 12px;
+    }
+
+    .post-grid .like-section {
+        gap: 6px;
+        font-size: 11px;
+        flex-direction: column;
+    }
+}

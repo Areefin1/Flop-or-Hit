@@ -1,7 +1,9 @@
 import { supabase } from "../client";
 import getAuthUserData from "./userData";
+import countReactions from "./countReaction";
+import { deleteImage, uploadImage, getImageUrl } from "./storageService";
 
-// I will include image_path in the parameter once Supabase Storange is set up
+
 async function createPost(title, content, image_path = null)
 {
     try {
@@ -25,91 +27,32 @@ async function createPost(title, content, image_path = null)
     }
 }
 
-async function uploadPostImage(file)
-{
-    try {
-        const user = await getAuthUserData();
+// Avatars wrapper functions
+const uploadAvatar = (file) =>
+    uploadImage("avatars", file);
 
-        const fileExtension = file.name.split(".").pop();
-        const uniqueFileName = `${crypto.randomUUID()}.${fileExtension}`;
-        const filePath = `${user.id}/${uniqueFileName}`;
+const getAvatarImageUrl = (imagePath) =>
+    getImageUrl("avatars", imagePath);
 
-        const { data, error: uploadError } = await supabase.storage
-            .from("post-images")
-            .upload(filePath, file, {
-                contentType: file.type 
-            });
+const deleteAvatar = (imagePath) =>
+    deleteImage("avatars", imagePath);
 
-        if(uploadError)
-        {
-            throw new Error(`Storage UPLOAD error: ${uploadError.message}`);
-        }
+// Post images wrapper functions
+const uploadPostImage = (file) =>
+    uploadImage("post-images", file);
 
-        return data.path;
-    } catch (error) {
-        throw new Error(`Failed to upload post image: ${error.message}`);
-    }
-}
+const deletePostImage = (imagePath) =>
+    deleteImage("post-images", imagePath);
 
 
-async function deletePostImage(imagePath) {
-    try {
-        if (!imagePath) {
-            return;
-        }
-
-        const user = await getAuthUserData();
-
-        if (!imagePath.startsWith(`${user.id}/`)) {
-            throw new Error("Cannot delete an image outside your own folder.");
-        }
-
-        const { error: deleteError } = await supabase.storage
-            .from("post-images")
-            .remove([imagePath]);
-
-        if (deleteError) {
-            throw new Error(`Storage DELETE error: ${deleteError.message}`);
-        }
-
-    } catch (error) {
-        throw new Error(`Failed to delete post image: ${error.message}`);
-    }
-}
-
-
-function getPostImageUrl(imagePath)
-{
-    if(!imagePath) return null;
-
-    const { data } = supabase.storage
-        .from("post-images")
-        .getPublicUrl(imagePath);
-    
-    return data.publicUrl;
-}
+const getPostImageUrl = (imagePath) =>
+    getImageUrl("post-images", imagePath);
 
 async function getAllUserPosts()
 {
-    try {
-        const user = await getAuthUserData();
+    const user = await getAuthUserData();
 
-        const { data, error: fetchError } = await supabase
-            .from("posts")
-            .select("id, user_id, title, content, created_at, image_path")
-            .eq("user_id", user.id)
-            .order("created_at", {ascending: false});
-
-        if(fetchError)
-        {
-            throw new Error(`Database SELECT error: ${fetchError.message}`);
-        }
-
-        return data ?? [];
-
-    } catch (error) {
-        throw new Error(`Failed to retrieve all posts made by user: ${error.message}`);
-    }
+    return getAllPosts(user.id);
 }
 
 async function updatePost(postId, title, content, imagePath = undefined)
@@ -194,61 +137,56 @@ async function deletePost(postId) {
 }
 
 
-async function getAllPosts()
+async function getAllPosts(userId = null)
 {
-    try {
-        const { data, error } = await supabase
+    try
+    {
+        let query = supabase
             .from("posts")
-            .select(`id,
-                user_id, 
+            .select(`
+                id,
+                user_id,
                 title,
                 content,
                 image_path,
-                created_at, 
+                created_at,
                 profiles!posts_user_id_fkey (
-                username,
-                display_name
+                    username,
+                    display_name
                 ),
                 post_reactions (
-                user_id,
-                reaction
-                )`)
-            .order("created_at", {ascending: false});
+                    reaction
+                )
+            `)
+            .order("created_at", { ascending: false });
+
+        if(userId !== null)
+        {
+            query = query.eq("user_id", userId);
+        }
+
+        const { data, error } = await query;
+
         if(error)
         {
             throw new Error(`Database SELECT error: ${error.message}`);
         }
 
-        const normalizedData = data.map((post) => {
-            const {
-                profiles,
-                post_reactions,
-                ...postData
-            } = post;
-
-            const reactions = post_reactions ?? [];
-
-            const likeCount = reactions.filter(reaction =>
-                reaction.reaction === "like"
-            ).length;
-
-            const dislikeCount = reactions.filter(reaction =>
-                reaction.reaction === "dislike"
-            ).length;
+        return (data ?? []).map((post) => {
+            const { profiles, post_reactions, ...postData } = post;
 
             return {
                 ...postData,
                 username: profiles?.username ?? null,
                 display_name: profiles?.display_name ?? null,
-                likeCount,
-                dislikeCount
+                ...countReactions(post_reactions)
             };
         });
 
-        return normalizedData;
-
-    } catch (error) {
-        throw new Error(`Failed to get all posts: ${error.message}`)
+    }
+    catch(error)
+    {
+        throw new Error(`Failed to get posts: ${error.message}`);
     }
 }
 
@@ -724,6 +662,117 @@ async function applyCommentReaction(commentId, reactionType)
     }
 }
 
+async function getMyProfile()
+{
+    try
+    {
+        const user = await getAuthUserData();
+
+        const { data, error: fetchError } = await supabase
+            .from("profiles")
+            .select("id, username, display_name, bio, avatar_path")
+            .eq("id", user.id)
+            .single();
+
+        if(fetchError)
+        {
+            throw new Error(`Database SELECT error: ${fetchError.message}`);
+        }
+
+        return data;
+    }
+    catch(error)
+    {
+        throw new Error(`Failed to retrieve user profile: ${error.message}`);
+    }
+}
+
+async function updateProfile({displayName, bio, newAvatar, oldImagePath})
+{
+    try {
+        const user = await getAuthUserData();
+
+        const updates = {};
+        let newImagePath = undefined;
+
+        // 1. Upload the new avatar first
+        if (newAvatar)
+        {
+            newImagePath = await uploadAvatar(newAvatar);
+            updates.avatar_path = newImagePath;
+        }
+
+        if (displayName !== undefined)
+        {
+            updates.display_name = displayName;
+        }
+
+        if (bio !== undefined)
+        {
+            updates.bio = bio;
+        }
+
+        if (Object.keys(updates).length === 0)
+        {
+            throw new Error("No profile changes provided.");
+        }
+
+        // 2. Update the database
+        let data;
+
+        try {
+            const { data: updatedProfile, error: updateError } = await supabase
+                .from("profiles")
+                .update(updates)
+                .eq("id", user.id)
+                .select("id, display_name, bio, avatar_path")
+                .single();
+
+            if (updateError)
+            {
+                throw new Error(`Database UPDATE error: ${updateError.message}`);
+            }
+
+            data = updatedProfile;
+
+        } catch (updateError) {
+
+            // Database failed: delete newly uploaded avatar
+            if (newImagePath)
+            {
+                try {
+                    await deleteAvatar(newImagePath);
+                } catch (cleanupError) {
+                    console.error(
+                        "Failed to clean up newly uploaded avatar:",
+                        cleanupError
+                    );
+                }
+            }
+
+            throw updateError;
+        }
+
+        // 3. Database succeeded: delete old avatar
+        if (newImagePath && oldImagePath)
+        {
+            try {
+                await deleteAvatar(oldImagePath);
+            } catch (cleanupError) {
+                console.error(
+                    "Failed to clean up old uploaded avatar:",
+                    cleanupError
+                );
+            }
+        }
+
+        return data;
+
+    } catch (error) {
+        throw new Error(`Failed to update user profile: ${error.message}`);
+    }
+}
+
 
 export { createPost, 
     getAllUserPosts, 
@@ -738,5 +787,10 @@ export { createPost,
     applyCommentReaction,
     uploadPostImage,
     getPostImageUrl,
-    deletePostImage 
+    deletePostImage,
+    getMyProfile, 
+    getAvatarImageUrl,
+    uploadAvatar,
+    deleteAvatar,
+    updateProfile 
 };

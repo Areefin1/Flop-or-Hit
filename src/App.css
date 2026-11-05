@@ -1,8 +1,6 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  min-height: 100vh;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -21,10 +19,11 @@
 
 .app-container {
   display: flex;
+  width: 100%;
+  min-height: 100vh;
 }
 
 .main-content {
-  margin-left: 270px; /* Same as sidebar width */
-  padding: 20px;
-  flex: 1;
+    min-width: 0;
+    padding-top: 100px;
 }

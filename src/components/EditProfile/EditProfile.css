@@ -1,0 +1,185 @@
+
+/* Main page — no card */
+.edit-profile {
+    width: calc(100% - 60px);
+    max-width: 850px;
+    margin: 60px auto;
+    padding: 0 20px 60px;
+    box-sizing: border-box;
+}
+
+/* Page heading */
+.edit-profile h2 {
+    font-size: 30px;
+    font-weight: 700;
+    color: #222;
+    text-align: left;
+    margin: 0 0 30px;
+}
+
+/* Each settings section */
+.change-profile-picture,
+.edit-profile-field {
+    padding: 28px 0;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* Avatar section */
+.change-profile-picture {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+/* Avatar image */
+.edit-profile .profile-picture {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+}
+
+/* Labels */
+.edit-profile label {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 10px;
+}
+
+/* File input */
+.change-profile-picture input[type="file"] {
+    max-width: 100%;
+    font-size: 14px;
+    color: #555;
+}
+
+.change-profile-picture input[type="file"]::file-selector-button {
+    padding: 9px 15px;
+    margin-right: 12px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    color: #333;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.change-profile-picture input[type="file"]::file-selector-button:hover {
+    background: #f3f4f6;
+}
+
+/* Display name and bio sections */
+.edit-profile-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Input styling */
+.edit-profile-field input,
+.edit-profile-field textarea {
+    width: 100%;
+    padding: 13px 15px;
+    background: white;
+    color: #222;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    box-sizing: border-box;
+    outline: none;
+}
+
+/* Focus state */
+.edit-profile-field input:focus,
+.edit-profile-field textarea:focus {
+    border-color: #20b98d;
+    box-shadow: 0 0 0 3px rgba(32, 185, 141, 0.12);
+}
+
+/* Bio textarea */
+.edit-profile-field textarea {
+    min-height: 140px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+/* Action buttons */
+.edit-profile-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    padding-top: 28px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.edit-profile-actions button {
+    padding: 11px 22px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Save */
+.edit-profile-actions .save-button {
+    background: #20b98d;
+    color: white;
+}
+
+.edit-profile-actions .save-button:hover {
+    background: #189d77;
+}
+
+/* Cancel */
+.edit-profile-actions .cancel-button {
+    background: #f3f4f6;
+    color: #333;
+    border: 1px solid #d1d5db;
+}
+
+.edit-profile-actions .cancel-button:hover {
+    background: #e5e7eb;
+}
+
+/* Disabled state */
+.edit-profile-actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Errors */
+.edit-profile .error-message {
+    color: #c62828;
+    background: #fff0f0;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .edit-profile {
+        width: calc(100% - 30px);
+        margin: 30px auto;
+        padding: 0 10px 40px;
+    }
+
+    .edit-profile h2 {
+        font-size: 25px;
+    }
+
+    .edit-profile-actions {
+        flex-direction: column;
+    }
+
+    .edit-profile-actions button {
+        width: 100%;
+    }
+}
