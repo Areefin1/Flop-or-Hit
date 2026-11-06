@@ -36,7 +36,12 @@ function HomeFeed({ searchTerm, sortOption }) {
                 return new Date(b.created_at) - new Date(a.created_at);
             } else if (sortOption === "oldest") {
                 return new Date(a.created_at) - new Date(b.created_at);
-            } else {
+            } 
+            else if(sortOption === "most upvoted")
+            {
+                return b.likeCount - a.likeCount;
+            }
+            else {
                 return 0;
             }
         });
