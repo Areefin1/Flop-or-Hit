@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./HomeFeed.css";
 import { useNavigate } from "react-router-dom";
-import { applyReaction, getAllPosts, getPostImageUrl } from "../../services/service";
+import { applyReaction, getAllPosts, getPostImageUrl, getAvatarImageUrl } from "../../services/service";
 import formatTimeAgo from "../../helpers/formatTimeAgo.js";
 
 function HomeFeed({ searchTerm, sortOption }) {
@@ -43,6 +43,10 @@ function HomeFeed({ searchTerm, sortOption }) {
 
     const goToPostDetails = (postId) => {
         navigate(`/post/${postId}`);
+    };
+
+    const goToUserProfile = (userId) => {
+        navigate(`/users/${userId}`);
     };
 
     async function handleReaction(postId, reactionType) {
@@ -92,14 +96,42 @@ function HomeFeed({ searchTerm, sortOption }) {
                                 onClick={() => goToPostDetails(post.id)}
                                 style={{ cursor: "pointer" }}
                             >
-                                <div className="post-time">
-                                    {formatTimeAgo(post.created_at)}
+
+                            <div
+                                className="post-author-header"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    goToUserProfile(post.user_id);
+                                }}
+                                role="link"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.stopPropagation();
+                                        goToUserProfile(post.user_id);
+                                    }
+                                }}
+                            >
+                                <img
+                                    src={getAvatarImageUrl(post.avatar_path)}
+                                    alt={`${post.username}'s avatar`}
+                                    className="post-avatar"
+                                />
+
+                                <div className="post-author-info">
+                                    <span className="post-display-name">
+                                        {post.display_name || post.username || "Unknown User"}
+                                    </span>
+
+                                    <span className="post-username">
+                                        @{post.username || "unknown"}
+                                    </span>
+
+                                    <span className="post-time">
+                                        {formatTimeAgo(post.created_at)}
+                                    </span>
                                 </div>
-
-                                <p className="post-author">
-                                    @{post.username}
-                                </p>
-
+                            </div>
                                 <h3>{post.title}</h3>
 
                                 {post.content && <p>{post.content}</p>}
@@ -121,7 +153,10 @@ function HomeFeed({ searchTerm, sortOption }) {
                                             handleReaction(post.id, "like");
                                         }}
                                     >
-                                        👍 {post.likeCount} Likes
+                                    <span className="material-symbols-outlined reaction-icon">
+                                        thumb_up
+                                    </span>
+                                    <span>{post.likeCount}</span>
                                     </button>
 
                                     <button
@@ -132,8 +167,17 @@ function HomeFeed({ searchTerm, sortOption }) {
                                             handleReaction(post.id, "dislike");
                                         }}
                                     >
-                                        👎 {post.dislikeCount} Dislikes
+                                        <span className="material-symbols-outlined reaction-icon">
+                                            thumb_down
+                                        </span>
+                                        <span>{post.dislikeCount}</span>
                                     </button>
+                                    <span className="comment-count" aria-label={`${post.commentCount} comments`}>
+                                        <span className="material-symbols-outlined reaction-icon" aria-hidden="true">
+                                            mode_comment
+                                        </span>
+                                        <span>{post.commentCount}</span>
+                                    </span>
                                 </div>
                             </div>
                         );

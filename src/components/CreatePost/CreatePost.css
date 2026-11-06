@@ -1,44 +1,188 @@
+/* PAGE CONTAINER */
+
 .create-post-container {
+    width: 100%;
+    min-width: 0;
+    padding: 48px 24px;
+    box-sizing: border-box;
+
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
+    align-items: flex-start;
 }
+
+/* FORM */
 
 .create-post-form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    width: 400px;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background-color: #fafafa;
-    color: black;
+    width: 100%;
+    max-width: 800px;
+    min-width: 0;
+    box-sizing: border-box;
+
+    color: #1e293b;
 }
+
+/* HEADING */
 
 .create-post-form h2 {
-    text-align: center;
+    margin: 0 0 24px;
+    padding-bottom: 24px;
+
+    border-bottom: 1px solid #dbe3ed;
+
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e293b;
+    text-align: left;
 }
 
-.create-post-form input,
+/* LABELS */
+
+.create-post-form label {
+    display: block;
+    margin-bottom: 12px;
+
+    font-size: 15px;
+    font-weight: 500;
+    color: #334155;
+}
+
+/* TEXT INPUTS */
+
+.create-post-form input[type="text"],
 .create-post-form textarea {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background: white;
-  color: black;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    margin-bottom: 28px;
+
+    background-color: #fff;
+    color: #1e293b;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.5;
 }
 
-.create-post-form button {
-    padding: 10px;
-    background-color: #007bff;
-    border: none;
-    color: rgb(255, 255, 255);
-    border-radius: 5px;
+.create-post-form textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+/* FOCUS */
+
+.create-post-form input[type="text"]:focus,
+.create-post-form textarea:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+}
+
+/* IMAGE UPLOAD */
+
+.create-post-form input[type="file"] {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    margin-bottom: 28px;
+    padding: 12px;
+
+    background-color: var(--color-light);
+    border: 1px dashed var(--color-soft);
+    border-radius: 8px;
+
+    color: #334155;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.create-post-form input[type="file"]::file-selector-button {
+    padding: 8px 12px;
+    margin-right: 12px;
+
+    background-color: white;
+    color: var(--color-dark);
+    border: 1px solid var(--color-soft);
+    border-radius: 6px;
+
+    font-family: inherit;
     cursor: pointer;
 }
 
-.create-post-form button:hover {
-    background-color: #0056b3;
+/* SUBMIT BUTTON */
+
+.create-post-form button[type="submit"] {
+    align-self: flex-end;
+    padding: 12px 24px;
+
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: background-color 0.2s ease;
+}
+
+.create-post-form button[type="submit"]:hover {
+    background-color: var(--color-dark);
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+    .create-post-container {
+        padding: 24px 16px;
+    }
+
+    .create-post-form h2 {
+        font-size: 24px;
+    }
+
+    .create-post-form button[type="submit"] {
+        width: 100%;
+    }
+}
+
+/* LIVE IMAGE PREVIEW */
+
+.create-post-image-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.create-post-image-preview img {
+    display: block;
+    max-width: 100%;
+    max-height: 350px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+    border: 1px solid #dbe3ed;
+}
+
+/* REMOVE IMAGE BUTTON */
+
+.create-post-form .remove-preview-button {
+    align-self: center;
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.create-post-form .remove-preview-button:hover {
+    background-color: #fecaca;
 }

@@ -1,57 +1,64 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle');
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
-}
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=account_circle,mode_comment,thumb_down,thumb_up');
+
+/* Sidebar container */
 .sidebar {
-    background: rgb(39, 189, 139);
+    background: var(--color-primary);
     width: 270px;
     position: fixed;
-    margin: 16px;
+    margin: 10px;
     border-radius: 16px;
     height: calc(100vh - 32px);
     top: 70px;
     left: -10px;
 }
 
-.sidebar-nav .nav-link {
-    color: rgb(255, 255, 255);
-    text-decoration: none;
-    padding: 12px 15px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: 0.4s ease;
-    border-radius: 8px;
-}
-
+/* Navigation list */
 .sidebar-nav .nav-list {
     list-style: none;
     display: flex;
     flex-direction: column;
     gap: 4px;
-    padding: 0 15px;
-    transform: translateY(15px);
+    padding: 15px;
+    transform: translateY(35px);
 }
 
-.sidebar-nav .nav-link:hover {
-    background: #fff;
-    color: rgb(39, 189, 139);
-}
-
-.logout-button {
-    background: none;
-    border: none;
-    cursor: pointer;
+/* Navigation links and buttons */
+.sidebar-nav .nav-link {
     display: flex;
     align-items: center;
-    color: inherit;
-    font: inherit;
-    padding: 0;
-    margin: 0;
+    gap: 12px;
+
+    width: 100%;
+    padding: 12px 15px;
+    box-sizing: border-box;
+
+    color: white;
+    background: transparent;
     text-decoration: none;
-  }
+
+    border: none;
+    border-radius: 8px;
+
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+
+    cursor: pointer;
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* White hover effect */
+.sidebar-nav .nav-link:hover {
+    background-color: white;
+    color: var(--color-primary);
+}
+
+/* Logout button */
+.sidebar-nav .logout-button {
+    appearance: none;
+    width: 100%;
+    margin: 0;
+}

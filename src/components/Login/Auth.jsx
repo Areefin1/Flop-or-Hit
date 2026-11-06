@@ -41,7 +41,7 @@ function Auth() {
   return (
     <div className="auth-page">
       <form onSubmit={handleAuth}>
-        <h2>Login</h2>
+        <h1>Login</h1>
 
         <label htmlFor="email">Email:</label>
         <input
@@ -67,7 +67,7 @@ function Auth() {
 
         {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <p>
+        <p className="auth-footer">
           Don't have an account?
           <button
             type="button"

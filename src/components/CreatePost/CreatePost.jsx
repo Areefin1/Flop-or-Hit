@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { createPost, uploadPostImage } from "../../services/service"
 import "./CreatePost.css";
 
@@ -10,8 +10,23 @@ function CreatePost ()
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+
+    useEffect(() => {
+        if (!imageFile) {
+            setImagePreview(null);
+            return;
+        }
+
+        const previewUrl = URL.createObjectURL(imageFile);
+        setImagePreview(previewUrl);
+
+        return () => {
+            URL.revokeObjectURL(previewUrl);
+        };
+    }, [imageFile]);
 
     const handleCreatePost = async (e) => {
         e.preventDefault();
@@ -81,6 +96,26 @@ function CreatePost ()
                         accept="image/jpeg,image/png,image/webp"
                         onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
                     />
+
+                    {imagePreview && (
+                        <div className="create-post-image-preview">
+                            <img
+                                src={imagePreview}
+                                alt="Selected post preview"
+                            />
+
+                            <button
+                                type="button"
+                                className="remove-preview-button"
+                                onClick={() => {
+                                    setImageFile(null);
+                                    fileInputRef.current.value = "";
+                                }}
+                            >
+                                Remove Image
+                            </button>
+                        </div>
+                    )}
 
                     <button type="submit">Create Post</button>
                 </form>

@@ -54,9 +54,10 @@ function SignUp()
         <>
             <div className="auth-page">
                 <form onSubmit={handleSignUp}>
-                    <label>
-                        Username:
-                        <input
+                <h1>Create an account</h1>
+                <label>
+                    Username
+                    <input
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
@@ -65,21 +66,27 @@ function SignUp()
                         maxLength={30}
                         pattern="[A-Za-z0-9_]+"
                         title="Username must contain only letters, numbers, and underscores."
-                        />
-                        3-30 characters, letters, numbers, and underscores.
-                        Permanent after registration.
-                    </label>
-                    <label>
-                        Display Name:
-                        <input 
-                            type="text"
-                            value={displayName}
-                            onChange={(e) => setDisplayName(e.target.value)}
-                            required
-                            maxLength={50}
-                        />
-                        Can be changed later.
-                    </label>
+                    />
+                    <span className="input-hint">
+                        3–30 characters. Letters, numbers, and underscores only.
+                        Cannot be changed after registration.
+                    </span>
+                </label>
+
+                <label>
+                    Display Name
+                    <input
+                        type="text"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        required
+                        maxLength={50}
+                    />
+                    <span className="input-hint">
+                        You can change this later.
+                    </span>
+                </label>
+
 
                     <label htmlFor="email"> Email:
                         <input 
@@ -103,16 +110,15 @@ function SignUp()
                         {loading ? "Creating account..." : "Sign Up"}
                     </button>
                     {error && <p style={{color: "red"}}>{error}</p>}
-
-                    <p>
-                        Already have an account?
-                        <button
-                            type="button"
-                            onClick={() => navigate("/login")}
-                        >
-                        Login
-                        </button>
-                    </p>
+                        <p className="auth-footer">
+                            Already have an account?
+                            <button
+                                type="button"
+                                onClick={() => navigate("/login")}
+                            >
+                                Log in
+                            </button>
+                        </p>
                 </form>
             </div>
         </>

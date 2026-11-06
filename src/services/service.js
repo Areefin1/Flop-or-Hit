@@ -198,11 +198,13 @@ async function getAllPosts(userId = null)
                 created_at,
                 profiles!posts_user_id_fkey (
                     username,
-                    display_name
+                    display_name,
+                    avatar_path
                 ),
                 post_reactions (
                     reaction
-                )
+                ),
+                comments(count)
             `)
             .order("created_at", { ascending: false });
 
@@ -219,12 +221,14 @@ async function getAllPosts(userId = null)
         }
 
         return (data ?? []).map((post) => {
-            const { profiles, post_reactions, ...postData } = post;
+            const { profiles, post_reactions, comments, ...postData } = post;
 
             return {
                 ...postData,
                 username: profiles?.username ?? null,
                 display_name: profiles?.display_name ?? null,
+                avatar_path: profiles?.avatar_path ?? null,
+                commentCount: comments?.[0]?.count ?? 0,
                 ...countReactions(post_reactions)
             };
         });
@@ -378,7 +382,8 @@ async function getSpecificPost(postId) {
 
                 profiles!posts_user_id_fkey (
                     username,
-                    display_name
+                    display_name,
+                    avatar_path
                 ),
 
                 post_reactions (
@@ -395,7 +400,8 @@ async function getSpecificPost(postId) {
 
                     profiles!comments_user_id_fkey (
                         username,
-                        display_name
+                        display_name,
+                        avatar_path
                     ),
 
                     comment_reactions (
@@ -452,6 +458,7 @@ async function getSpecificPost(postId) {
                 ...commentData,
                 username: commentProfile?.username ?? null,
                 display_name: commentProfile?.display_name ?? null,
+                avatar_path: commentProfile?.avatar_path ?? null,
                 likeCount: commentLikeCount,
                 dislikeCount: commentDislikeCount,
                 isOwner: comment.user_id === user?.id
@@ -463,6 +470,7 @@ async function getSpecificPost(postId) {
             ...postData,
             username: profiles?.username ?? null,
             display_name: profiles?.display_name ?? null,
+            avatar_path: profiles?.avatar_path ?? null,
             likeCount,
             dislikeCount,
             comments: normalizedComments.sort(
@@ -495,7 +503,8 @@ async function addComment(postId, content) {
                 created_at,
                 profiles!comments_user_id_fkey (
                     username,
-                    display_name
+                    display_name,
+                    avatar_path
                 )
             `)
             .single();
@@ -510,6 +519,7 @@ async function addComment(postId, content) {
             ...commentData,
             username: profiles?.username ?? null,
             display_name: profiles?.display_name ?? null,
+            avatar_path: profiles?.avatar_path ?? null,
             likeCount: 0,
             dislikeCount: 0,
             isOwner: true
@@ -733,6 +743,31 @@ async function getMyProfile()
     }
 }
 
+async function getProfile(userId = null) 
+{
+    try {
+        if(userId == null)
+        {
+            const user = await getAuthUserData();
+            userId = user.id;
+        }
+        const { data, error } = await supabase
+            .from("profiles")
+            .select("id, username, display_name, bio, avatar_path")
+            .eq("id", userId)
+            .maybeSingle();
+
+        if(error)
+        {
+            throw new Error(`Database SELECT error: ${error.message}`);
+        }
+
+        return data;
+    } catch (error) {
+        throw new Error(`Failed to get ${userId}'s profile: ${error.message}`);
+    }
+}
+
 async function updateProfile({displayName, bio, newAvatar, oldImagePath, removeAvatar})
 {
     try {
@@ -843,5 +878,6 @@ export { createPost,
     getAvatarImageUrl,
     uploadAvatar,
     deleteAvatar,
-    updateProfile 
+    updateProfile, 
+    getProfile 
 };

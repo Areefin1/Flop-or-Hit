@@ -1,69 +1,256 @@
+
+/* PAGE CONTAINER */
+
 .edit-post-container {
-    padding: 20px;
+    width: 100%;
+    padding: 24px;
+    box-sizing: border-box;
+    min-width: 0;
 }
 
-.post-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
+/* RESPONSIVE POST GRID */
+
+.edit-post-container .post-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    align-items: start;
+
+    max-width: 900px;
+    margin: 0 auto;
 }
+
+/* INDIVIDUAL POST CARD */
 
 .edit-post-card {
-    width: 300px;
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    min-width: 0;
+    padding: 24px;
+    box-sizing: border-box;
+
     background-color: #fff;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid #dbe3ed;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    color: #1e293b;
+    transition: box-shadow 0.2s ease;
 }
 
+.edit-post-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* AUTHOR HEADER */
+
+.edit-post-card .post-author-header {
+    margin-bottom: 8px;
+    cursor: default;
+}
+
+/* Disable clickable-author hover styling here */
+
+.edit-post-card .post-author-header:hover .post-display-name,
+.edit-post-card .post-author-header:hover .post-username {
+    color: inherit;
+    text-decoration: none;
+}
+
+.edit-post-card .post-display-name {
+    color: #1e293b;
+}
+
+.edit-post-card .post-username {
+    color: #64748b;
+}
+
+/* POST TITLE AND CONTENT */
+
 .edit-post-card h3 {
-    color: black;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #1e293b;
+    overflow-wrap: anywhere;
 }
 
 .edit-post-card p {
-    color: black;
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #334155;
+    overflow-wrap: anywhere;
 }
 
-.edit-post-card img {
+/* POST IMAGE — DOES NOT AFFECT AVATAR */
+
+.edit-post-card .post-image {
+    display: block;
     width: 100%;
+    max-height: 350px;
     height: auto;
-    border-radius: 5px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin: 4px auto;
 }
 
-.edit-post-card input,
-.edit-post-card textarea {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 8px;
-  border: 1px solid #ffffff;
-  border-radius: 5px;
+/* ENGAGEMENT STATISTICS */
+
+.edit-post-stats {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 0;
 }
+
+.edit-post-stats > span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    padding: 8px 12px;
+    background-color: var(--color-light);
+    color: var(--color-dark);
+    border: 1px solid var(--color-soft);
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.edit-post-stats .reaction-icon {
+    font-size: 20px;
+}
+
+/* EDIT POST FOOTER */
+
+.edit-post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+/* EDIT AND DELETE BUTTON ROW */
+
+.edit-post-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 0;
+    margin-left: auto;
+}
+
+/* EDITING INPUTS */
+
+.edit-post-card input[type="text"],
+.edit-post-card textarea {
+    width: 100%;
+    padding: 12px;
+    box-sizing: border-box;
+
+    background-color: var(--color-light);
+    color: #1e293b;
+    border: 1px solid var(--color-soft);
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.edit-post-card textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.edit-post-card input:focus,
+.edit-post-card textarea:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+}
+
+/* IMAGE UPLOAD */
+
+.edit-post-card label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #334155;
+}
+
+.edit-post-card input[type="file"] {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: 13px;
+    color: #334155;
+}
+
+/* BUTTONS */
 
 .edit-post-card button {
-    padding: 3px 8px;
-    background-color: rgb(39, 189, 139);
-    color: white;
-    border: none;
-    border-radius: 5px;
+    align-self: flex-start;
+    width: fit-content;
+    padding: 9px 16px;
+
+    background-color: var(--color-light);
+    color: var(--color-dark);
+    border: 1px solid var(--color-soft);
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
+
+    transition: background-color 0.2s ease;
 }
 
-.edit-post-card button:hover {
-    background-color: #218838;
+.edit-post-card button:hover:not(:disabled) {
+    background-color: var(--color-soft);
 }
+
+/* DELETE BUTTON — RED */
 
 .edit-post-card .delete-button {
-    margin-left: 10px;
-    padding: 3px 8px;
-    background-color: #dc3545; /* Red */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border-color: #fecaca;
 }
-  
-.edit-post-card .delete-button:hover {
-    background-color: #c82333;
+
+.edit-post-card .delete-button:hover:not(:disabled) {
+    background-color: #fecaca;
+}
+
+/* DISABLED BUTTONS */
+
+.edit-post-card button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* SMALL SCREENS */
+
+@media (max-width: 700px) {
+    .edit-post-container {
+        padding: 16px;
+    }
+
+    .edit-post-container .post-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .edit-post-card {
+        padding: 16px;
+    }
 }

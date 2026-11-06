@@ -94,11 +94,11 @@
     outline: none;
 }
 
-/* Focus state */
+/* Focus state — blue theme */
 .edit-profile-field input:focus,
 .edit-profile-field textarea:focus {
-    border-color: #20b98d;
-    box-shadow: 0 0 0 3px rgba(32, 185, 141, 0.12);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.12);
 }
 
 /* Bio textarea */
@@ -127,14 +127,14 @@
     cursor: pointer;
 }
 
-/* Save */
+/* Save — blue theme */
 .edit-profile-actions .save-button {
-    background: #20b98d;
+    background: var(--color-primary);
     color: white;
 }
 
-.edit-profile-actions .save-button:hover {
-    background: #189d77;
+.edit-profile-actions .save-button:hover:not(:disabled) {
+    background: var(--color-dark);
 }
 
 /* Cancel */
