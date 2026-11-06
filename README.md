@@ -270,6 +270,11 @@ The latest changes have been integrated into the `develop` branch.
 - [ ] Allow visitors to browse the feed without an account
 - [ ] Record an updated application walkthrough
 - [ ] Deploy the application publicly
+- [ ] Movie flop or hit prediction
+- [ ] Reply to comments
+- [ ] Home feed refresh in batches
+- [ ] Followers and following
+- [ ] Embedded images
 
 ## 🧠 Engineering Challenges and Lessons
 
