@@ -6,9 +6,9 @@ Built with React, JavaScript, Supabase Authentication, Supabase Storage, and Pos
 
 ## 🎥 Video Walkthrough
 
-![Flop or Hit Application Walkthrough](Final%20Project%20Walk%20through.gif)
+https://github.com/user-attachments/assets/2786cbb6-eca5-45ae-b60d-cf7b05e0ee56
 
-*Original 2025 application walkthrough demonstrating post creation, navigation, and social interactions. An updated walkthrough featuring the latest functionality is planned.*
+*A walkthrough of Flop or Hit demonstrating its updated features and user interactions.*
 
 ## 📖 Overview
 
