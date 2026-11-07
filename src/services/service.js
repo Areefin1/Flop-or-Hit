@@ -183,12 +183,14 @@ async function deletePost(postId) {
 }
 
 
+
+
 async function getAllPosts(userId = null)
 {
     try
     {
         let query = supabase
-            .from("posts")
+            .from("posts_with_reaction_counts")
             .select(`
                 id,
                 user_id,
@@ -196,15 +198,12 @@ async function getAllPosts(userId = null)
                 content,
                 image_path,
                 created_at,
-                profiles!posts_user_id_fkey (
-                    username,
-                    display_name,
-                    avatar_path
-                ),
-                post_reactions (
-                    reaction
-                ),
-                comments(count)
+                like_count,
+                dislike_count,
+                username,
+                display_name,
+                avatar_path,
+                comment_count
             `)
             .order("created_at", { ascending: false });
 
@@ -221,24 +220,28 @@ async function getAllPosts(userId = null)
         }
 
         return (data ?? []).map((post) => {
-            const { profiles, post_reactions, comments, ...postData } = post;
+            const {
+                like_count,
+                dislike_count,
+                comment_count,
+                ...postData
+            } = post;
 
             return {
                 ...postData,
-                username: profiles?.username ?? null,
-                display_name: profiles?.display_name ?? null,
-                avatar_path: profiles?.avatar_path ?? null,
-                commentCount: comments?.[0]?.count ?? 0,
-                ...countReactions(post_reactions)
+                likeCount: Number(like_count),
+                dislikeCount: Number(dislike_count),
+                commentCount: Number(comment_count)
             };
         });
-
     }
     catch(error)
     {
         throw new Error(`Failed to get posts: ${error.message}`);
     }
 }
+
+
 
 async function applyReaction(postId, reactionType) {
     try {
