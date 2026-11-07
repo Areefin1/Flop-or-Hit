@@ -1,43 +1,60 @@
 import { useEffect, useState } from "react";
-import { getAllUserPosts, getAvatarImageUrl, getMyProfile, getPostImageUrl } from "../../services/service";
-import { useNavigate } from "react-router-dom";
+import { getAllPosts, getAvatarImageUrl, getProfile, getPostImageUrl } from "../../services/service";
+import getAuthUserData from "../../services/userData";
+import { useNavigate, useParams } from "react-router-dom";
 import "./UserProfile.css";
 
 function UserProfile()
 {
     const [profileData, setProfileData] = useState({});
+    const [currentUser, setCurrentUser] = useState({});
     const [error, setError] = useState("");
     const [posts, setPosts] = useState([]);
     const navigate = useNavigate();
-
+    const { userId } = useParams();
     const goToPostDetails = (postId) => {
         navigate(`/post/${postId}`);
     };
-
+    
     useEffect(() => {
-        async function fetchUserPosts()
-        {
+        async function fetchUserProfileAndPosts() {
             try {
-                const postsArray = await getAllUserPosts();
+                setError("");
+                setProfileData({});
+                setPosts([]);
+
+                let targetUserId = userId;
+                const user = await getAuthUserData();
+                setCurrentUser(user);
+
+                if (!targetUserId) 
+                { 
+                    targetUserId = user.id;
+                }
+
+                const [profile, postsArray] = await Promise.all([
+                    getProfile(targetUserId),
+                    getAllPosts(targetUserId)
+                ]);
+                
+                if (!profile) 
+                {
+                    setError("This user profile does not exist.");
+                    setProfileData({});
+                    setPosts([]);
+                    return;
+                }
+
+                setProfileData(profile);
                 setPosts(postsArray);
-            } catch (error) {
-                setError(error.message);
-            }
-        }
-        async function fetchUserProfile()
-        {
-            try {
-                const data = await getMyProfile();
 
-                setProfileData(data);
             } catch (error) {
                 setError(error.message);
             }
         }
 
-        fetchUserProfile();
-        fetchUserPosts();
-    }, []);
+        fetchUserProfileAndPosts();
+    }, [userId]);
 
     return (
         <>
@@ -53,18 +70,21 @@ function UserProfile()
                 {profileData.bio && (
                     <p>{profileData.bio}</p>
                 )}
+
+                {profileData.id === currentUser.id && (
                 <button 
                 type="button"
                 onClick={() => navigate("/profile/edit")}
                 >
                     Edit Profile
                 </button>
+                )}
             </div>
-            <div className="post-grid">
+            <div className="profile-post-grid">
                 {posts.map((post) => (
                     <div 
                     key={post.id} 
-                    className="post-card"
+                    className="profile-post-card"
                     onClick={() => goToPostDetails(post.id)}
                     style={{cursor: "pointer"}}
                     >
@@ -78,8 +98,20 @@ function UserProfile()
                             />
                         )}
                         <div className="like-section">
-                            <span>👍 {post.likeCount} Likes</span>
-                            <span>👎 {post.dislikeCount} Dislikes</span>
+                            <span className="material-symbols-outlined reaction-icon">
+                                thumb_up
+                            </span>
+                            <span>{post.likeCount}</span>
+                            <span className="material-symbols-outlined reaction-icon">
+                                thumb_down
+                            </span>
+                            <span>{post.dislikeCount}</span>
+                            <span className="comment-count" aria-label={`${post.commentCount} comments`}>
+                                <span className="material-symbols-outlined reaction-icon" aria-hidden="true">
+                                    mode_comment
+                                </span>
+                                    <span>{post.commentCount}</span>
+                                </span>
                         </div>
                     </div>
                 ))}

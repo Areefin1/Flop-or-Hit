@@ -1,17 +1,148 @@
+
+/* ===================================
+   AUTH COLOR PALETTE
+   Change these 4 colors to experiment!
+=================================== */
+
+:root {
+    --auth-light: #E3F2FD;
+    --auth-soft: #90CAF9;
+    --auth-primary: #2196F3;
+    --auth-dark: #0D47A1;
+}
+
+/* Signup/Login card */
 .auth-page {
+    width: min(800px, calc(100% - 32px));
+    min-height: 650px;
+    margin: auto;
+    padding: 40px;
+
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background-color: rgb(0, 0, 0);
+
+    background: var(--auth-soft);
+    color: var(--auth-dark);
+    border: 2px solid var(--auth-dark);
     border-radius: 15px;
-    border: 3px solid;
-    width: 450px;
-    height: 400px;
+
+    box-sizing: border-box;
 }
 
-form {
+.auth-page form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
+    width: 100%;
 }
+
+/* Form labels */
+.auth-page label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--auth-dark);
+}
+
+/* Text inputs */
+.auth-page input {
+    width: 100%;
+    padding: 14px 16px;
+
+    background-color: var(--auth-light);
+    color: var(--auth-dark);
+
+    border: 1px solid var(--auth-dark);
+    border-radius: 8px;
+
+    font-size: 17px;
+    box-sizing: border-box;
+
+    transition: border-color 0.2s ease;
+}
+
+/* Input focus */
+.auth-page input:focus {
+    outline: 2px solid var(--auth-primary);
+    outline-offset: 2px;
+    border-color: var(--auth-primary);
+}
+
+/* Helper text */
+.auth-page .input-hint {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--auth-dark);
+    line-height: 1.5;
+}
+
+/* Buttons */
+.auth-page button {
+    padding: 14px 20px;
+
+    background-color: var(--auth-primary);
+    color: white;
+
+    border: 1px solid var(--auth-primary);
+    border-radius: 8px;
+
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: background-color 0.2s ease;
+}
+
+.auth-page button:hover:not(:disabled) {
+    background-color: var(--auth-dark);
+}
+
+.auth-page button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Primary signup button */
+.auth-page button[type="submit"] {
+    width: 100%;
+    background-color: var(--auth-primary);
+    border-color: var(--auth-primary);
+}
+
+.auth-page button[type="submit"]:hover:not(:disabled) {
+    background-color: var(--auth-dark);
+}
+
+/* Login section */
+.auth-page .auth-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+
+    font-size: 16px;
+    color: var(--auth-dark);
+}
+
+.auth-page .auth-footer button {
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    color: var(--auth-dark);
+}
+
+.auth-page .auth-footer button:hover {
+    background: transparent;
+    color: var(--auth-primary);
+}
+
+
+#root:has(.auth-page) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+

@@ -146,7 +146,7 @@ function EditProfile()
                 <button
                     type="button"
                     onClick={handleSaveChanges}
-                    disabled={saving || loading || !!error}
+                    disabled={saving || loading}
                     className="save-button"
                 >
                     {saving ? "Saving..." : "Save Changes"}

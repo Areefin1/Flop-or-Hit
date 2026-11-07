@@ -1,20 +1,22 @@
 
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import formatTimeAgo from "../../helpers/formatTimeAgo";
 import "./PostDetails.css";
 import { addComment, 
   applyCommentReaction, 
   getSpecificPost, 
   updateComment, 
   deleteComment,
-  getPostImageUrl 
+  getPostImageUrl,
+  getAvatarImageUrl,
+  applyReaction 
 } from "../../services/service";
 
 function PostDetails() {
   const { postId } = useParams();
   const [post, setPost] = useState(null);
   const [commentInput, setCommentInput] = useState("");
-
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingContent, setEditingContent] = useState("");
 
@@ -22,16 +24,7 @@ function PostDetails() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
-  // READ: Fetch the post and its reactions
-  async function fetchPost() {
-      try {
-        const dataPost = await getSpecificPost(postId);
-
-        setPost(dataPost);
-      } catch (error) {
-        setError(error.message);
-      }
-  }
+  const navigate = useNavigate();
 
   useEffect(() => {
     let cancelled = false;
@@ -201,12 +194,64 @@ function PostDetails() {
     );
   }
 
+  async function handlePostReaction(reactionType) {
+    if (busy) return;
+
+    setBusy(true);
+    setError("");
+
+    try {
+        const dataPost = await applyReaction(postId, reactionType);
+
+        setPost(prevPost => ({
+            ...prevPost,
+            likeCount: prevPost.likeCount + dataPost.likeDelta,
+            dislikeCount: prevPost.dislikeCount + dataPost.dislikeDelta
+        }));
+
+    } catch (error) {
+        setError(error.message);
+    } finally {
+        setBusy(false);
+    }
+  }
+
   return (
     <div className="post-details-container">
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       <div className="post-details-card">
-        <p>@{post.username}</p>
+          <div
+              className="post-author-header"
+              onClick={() => navigate(`/users/${post.user_id}`)}
+              role="link"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                      navigate(`/users/${post.user_id}`);
+                  }
+              }}
+          >
+              <img
+                  src={getAvatarImageUrl(post.avatar_path)}
+                  alt={`${post.username}'s avatar`}
+                  className="post-avatar"
+              />
+
+              <div className="post-author-info">
+                  <span className="post-display-name">
+                      {post.display_name || post.username || "Unknown User"}
+                  </span>
+
+                  <span className="post-username">
+                      @{post.username || "unknown"}
+                  </span>
+
+                  <span className="post-time">
+                      {formatTimeAgo(post.created_at)}
+                  </span>
+              </div>
+          </div>
 
         <h3>{post.title}</h3>
 
@@ -221,14 +266,57 @@ function PostDetails() {
         )}
 
         <div className="like-section">
-          <span>👍 {post.likeCount} Likes</span>
-          <span>👎 {post.dislikeCount} Dislikes</span>
+          <button
+              type="button"
+              disabled={busy}
+              onClick={() => handlePostReaction("like")}
+          >
+              <span className="material-symbols-outlined reaction-icon">
+                  thumb_up
+              </span>
+              <span>{post.likeCount}</span>
+          </button>
+
+          <button
+              type="button"
+              disabled={busy}
+              onClick={() => handlePostReaction("dislike")}
+          >
+              <span className="material-symbols-outlined reaction-icon">
+                  thumb_down
+              </span>
+              <span>{post.dislikeCount}</span>
+          </button>
+            <span className="comment-count" aria-label={`${post.commentCount} comments`}>
+                <span className="material-symbols-outlined reaction-icon" aria-hidden="true">
+                    mode_comment
+                </span>
+                <span>{post.comments.length}</span>
+            </span>
+
         </div>
       </div>
 
       <div className="comment-section">
         <h4>Comments ({post.comments.length})</h4>
+            <div className="comment-composer">
+        <textarea
+            placeholder="Add a comment..."
+            rows={3}
+            className="comment-input"
+            value={commentInput}
+            onChange={(e) => setCommentInput(e.target.value)}
+        />
 
+        <button
+            type="button"
+            className="comment-button"
+            disabled={busy || !commentInput.trim()}
+            onClick={handleCommentSubmit}
+        >
+            {busy ? "Please wait..." : "Comment"}
+        </button>
+    </div>
         <div className="comments-list">
           {post.comments.length === 0 && (
             <p>No comments yet. Be the first!</p>
@@ -239,11 +327,33 @@ function PostDetails() {
 
             return (
               <div key={comment.id} className="comment-item">
-                <p>
-                  <strong>
-                    @{comment.username ?? "Unknown"}
-                  </strong>
-                </p>
+                <div
+                    className="comment-author-header"
+                    onClick={() => navigate(`/users/${comment.user_id}`)}
+                    role="link"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            navigate(`/users/${comment.user_id}`);
+                        }
+                    }}
+                >
+                    <img
+                        src={getAvatarImageUrl(comment.avatar_path)}
+                        alt={`${comment.display_name || comment.username || "User"}'s avatar`}
+                        className="comment-avatar"
+                    />
+
+                    <div className="comment-author-info">
+                        <span className="comment-display-name">
+                            {comment.display_name || comment.username || "Unknown User"}
+                        </span>
+
+                        <span className="comment-time">
+                            {formatTimeAgo(comment.created_at)}
+                        </span>
+                    </div>
+                </div>
 
                 {isEditing ? (
                   <>
@@ -278,68 +388,58 @@ function PostDetails() {
                   <>
                     <p>{comment.content}</p>
 
-                    {comment.isOwner && (
-                      <div className="comment-actions">
-                        <button
-                          type="button"
-                          disabled={busy}
-                          onClick={() => startEditing(comment)}
-                        >
-                          Edit
-                        </button>
+                    
+                      <div className="comment-footer">
+                          <div className="comment-reactions">
+                              <button
+                                  type="button"
+                                  disabled={busy}
+                                  onClick={() => handleCommentReaction(comment.id, "like")}
+                              >
+                                  <span className="material-symbols-outlined reaction-icon">
+                                      thumb_up
+                                  </span>
+                                  <span>{comment.likeCount}</span>
+                              </button>
 
-                        <button
-                          type="button"
-                          disabled={busy}
-                          onClick={() =>
-                            handleCommentDelete(comment.id)
-                          }
-                        >
-                          Delete
-                        </button>
+                              <button
+                                  type="button"
+                                  disabled={busy}
+                                  onClick={() => handleCommentReaction(comment.id, "dislike")}
+                              >
+                                  <span className="material-symbols-outlined reaction-icon">
+                                      thumb_down
+                                  </span>
+                                  <span>{comment.dislikeCount}</span>
+                              </button>
+                          </div>
+
+                          {comment.isOwner && (
+                              <div className="comment-actions">
+                                  <button
+                                      type="button"
+                                      disabled={busy}
+                                      onClick={() => startEditing(comment)}
+                                  >
+                                      Edit
+                                  </button>
+
+                                  <button
+                                      type="button"
+                                      disabled={busy}
+                                      onClick={() => handleCommentDelete(comment.id)}
+                                  >
+                                      Delete
+                                  </button>
+                              </div>
+                          )}
                       </div>
-                    )}
-
-                    <div className="comment-reactions">
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => handleCommentReaction(comment.id, "like")}
-                    >
-                      👍 {comment.likeCount}
-                    </button>
-
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => handleCommentReaction(comment.id, "dislike")}
-                    >
-                      👎 {comment.dislikeCount}
-                    </button>
-                  </div>
                   </>
                 )}
               </div>
             );
           })}
         </div>
-
-        <textarea
-          placeholder="Add a comment..."
-          rows={2}
-          className="comment-input"
-          value={commentInput}
-          onChange={(e) => setCommentInput(e.target.value)}
-        />
-
-        <button
-          type="button"
-          className="comment-button"
-          disabled={busy || !commentInput.trim()}
-          onClick={handleCommentSubmit}
-        >
-          {busy ? "Please wait..." : "Comment"}
-        </button>
       </div>
     </div>
   );

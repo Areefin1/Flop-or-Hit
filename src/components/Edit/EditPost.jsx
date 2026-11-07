@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./EditPost.css";
-import { getAllUserPosts, updatePost, deletePost, getPostImageUrl } from "../../services/service";
+import { getAllUserPosts, updatePost, deletePost, getPostImageUrl, getAvatarImageUrl } from "../../services/service";
+import formatTimeAgo from "../../helpers/formatTimeAgo";
 
 function EditPost() {
   const [posts, setPosts] = useState([]);
@@ -138,6 +139,29 @@ function EditPost() {
 
         {posts.map((post) => (
           <div key={post.id} className="edit-post-card">
+
+            <div className="post-author-header">
+              <img
+                src={getAvatarImageUrl(post.avatar_path)}
+                alt={`${post.display_name || post.username}'s avatar`}
+                className="post-avatar"
+              />
+
+              <div className="post-author-info">
+                <span className="post-display-name">
+                  {post.display_name || post.username || "Unknown User"}
+                </span>
+
+                <span className="post-username">
+                  @{post.username || "unknown"}
+                </span>
+
+                <span className="post-time">
+                  {formatTimeAgo(post.created_at)}
+                </span>
+              </div>
+            </div>
+
             {editingPostId === post.id ? (
               <>
                 <input
@@ -234,23 +258,49 @@ function EditPost() {
                       className="post-image"
                   />
                 )}
+                <div className="edit-post-footer">
+                  <div className="edit-post-stats">
+                    <span>
+                      <span className="material-symbols-outlined reaction-icon">
+                        thumb_up
+                      </span>
+                      {post.likeCount}
+                    </span>
 
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => handleEditClick(post)}
-                >
-                  Edit
-                </button>
+                    <span>
+                      <span className="material-symbols-outlined reaction-icon">
+                        thumb_down
+                      </span>
+                      {post.dislikeCount}
+                    </span>
 
-                <button
-                  type="button"
-                  className="delete-button"
-                  disabled={busy}
-                  onClick={() => handleDelete(post.id)}
-                >
-                  Delete
-                </button>
+                    <span>
+                      <span className="material-symbols-outlined reaction-icon">
+                        mode_comment
+                      </span>
+                      {post.commentCount}
+                    </span>
+                  </div>
+
+                  <div className="edit-post-actions">
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => handleEditClick(post)}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      className="delete-button"
+                      disabled={busy}
+                      onClick={() => handleDelete(post.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
               </>
             )}
           </div>

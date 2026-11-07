@@ -45,8 +45,18 @@ function App() {
     <>
       <div className='app-container' style={{ display: 'flex'}}>
         {isAuthenticated && <Sidebar />}
-        <div className='main-content' style={{ marginLeft: isAuthenticated ? '200px' : '0', flex: 1 }}>
-          {isAuthenticated && <Topbar onSearchChange={setSearchTerm} onSortChange={setSortOption} />}
+        <div className='main-content' style={{ marginLeft: isAuthenticated ? '270px' : '0', flex: 1 }}>
+          {isAuthenticated ? (
+            <Topbar
+              onSearchChange={setSearchTerm}
+              onSortChange={setSortOption}
+            />
+          ) : (
+            <header className="auth-brand">
+              <h1>Flop or Hit</h1>
+              <p>Predict whether an unreleased movie would flop or hit!</p>
+            </header>
+          )}
         <Routes>
           <Route path="/signup" element={isAuthenticated ? <Navigate to="/home" /> : <SignUp />}/>
           <Route path='/login' element={isAuthenticated ? <Navigate to="/home" /> : <Auth />} />
@@ -57,6 +67,7 @@ function App() {
           <Route path='*' element={<Navigate to="/login" />} />
           <Route path='/profile' element={isAuthenticated ? <UserProfile /> : <Navigate to="/login"/>} />
           <Route path='/profile/edit' element={isAuthenticated ? <EditProfile /> : <Navigate to="/login"/>} />
+          <Route path='/users/:userId' element={isAuthenticated ? <UserProfile /> : <Navigate to="/login" />} />
         </Routes>
         </div>
       </div>
