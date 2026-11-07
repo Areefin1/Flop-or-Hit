@@ -275,6 +275,7 @@ The latest changes have been integrated into the `develop` branch.
 - [ ] Home feed refresh in batches
 - [ ] Followers and following
 - [ ] Embedded images
+- [ ] Add mobile support
 
 ## 🧠 Engineering Challenges and Lessons
 
