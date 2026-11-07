@@ -46,7 +46,17 @@ function App() {
       <div className='app-container' style={{ display: 'flex'}}>
         {isAuthenticated && <Sidebar />}
         <div className='main-content' style={{ marginLeft: isAuthenticated ? '270px' : '0', flex: 1 }}>
-          {isAuthenticated && <Topbar onSearchChange={setSearchTerm} onSortChange={setSortOption} />}
+          {isAuthenticated ? (
+            <Topbar
+              onSearchChange={setSearchTerm}
+              onSortChange={setSortOption}
+            />
+          ) : (
+            <header className="auth-brand">
+              <h1>Flop or Hit</h1>
+              <p>Predict whether an unreleased movie would flop or hit!</p>
+            </header>
+          )}
         <Routes>
           <Route path="/signup" element={isAuthenticated ? <Navigate to="/home" /> : <SignUp />}/>
           <Route path='/login' element={isAuthenticated ? <Navigate to="/home" /> : <Auth />} />
