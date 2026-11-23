@@ -142,7 +142,7 @@ function EditPost() {
 
             <div className="post-author-header">
               <img
-                src={getAvatarImageUrl(post.avatar_path)}
+                src={post.avatar_path ? getAvatarImageUrl(post.avatar_path) : "/default-profile.jpg"}
                 alt={`${post.display_name || post.username}'s avatar`}
                 className="post-avatar"
               />
