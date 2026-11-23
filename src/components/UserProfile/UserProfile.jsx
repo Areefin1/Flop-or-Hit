@@ -61,7 +61,7 @@ function UserProfile()
             <div className="profile-banner">
                 {error && <p className="error-message">{error}</p>}
                 <img 
-                    src={getAvatarImageUrl(profileData.avatar_path)}
+                    src={profileData.avatar_path ? getAvatarImageUrl(profileData.avatar_path) : "/default-profile.jpg"}
                     alt={`${profileData.display_name}'s avatar`}
                     className="profile-picture"
                 />
