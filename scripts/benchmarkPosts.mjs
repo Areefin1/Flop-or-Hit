@@ -3,10 +3,10 @@ import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
 import { performance } from "node:perf_hooks";
 
-dotenv.config({ path: ".env.local" });
+dotenv.config({ path: ".env.test.local" });
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_PUBLISHABLE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
     throw new Error("Missing Supabase environment variables.");
@@ -19,7 +19,7 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
     }
 });
 
-const ROUNDS = 5;
+const ROUNDS = 6;
 
 function countReactions(reactions = []) {
     let likeCount = 0;
@@ -55,7 +55,7 @@ async function originalQuery() {
             post_reactions (
                 reaction
             ),
-            comments(count)
+            comments(id)
         `)
         .order("created_at", { ascending: false });
 
@@ -69,7 +69,7 @@ async function originalQuery() {
             username: profiles?.username ?? null,
             display_name: profiles?.display_name ?? null,
             avatar_path: profiles?.avatar_path ?? null,
-            commentCount: comments?.[0]?.count ?? 0,
+            commentCount: comments?.length ?? 0,
             ...countReactions(post_reactions)
         };
     });
@@ -114,11 +114,58 @@ async function optimizedQuery() {
     });
 }
 
-function median(numbers) {
-    const sorted = [...numbers].sort((a, b) => a - b);
-    return sorted[Math.floor(sorted.length / 2)];
+// NEW: Query your independently created posts_info View.
+async function postsInfoQuery() {
+    const { data, error } = await supabase
+        .from("posts_info")
+        .select(`
+            id,
+            user_id,
+            title,
+            content,
+            image_path,
+            created_at,
+            like_count,
+            dislike_count,
+            username,
+            display_name,
+            avatar_path,
+            comment_count
+        `)
+        .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return (data ?? []).map((post) => {
+        const {
+            like_count,
+            dislike_count,
+            comment_count,
+            ...postData
+        } = post;
+
+        return {
+            ...postData,
+            likeCount: Number(like_count),
+            dislikeCount: Number(dislike_count),
+            commentCount: Number(comment_count)
+        };
+    });
 }
 
+// Find the middle measurement.
+function median(numbers) {
+    const sorted = [...numbers].sort((a, b) => a - b);
+    const middle = Math.floor(sorted.length / 2);
+
+    if (sorted.length % 2 === 0) {
+        return (sorted[middle - 1] + sorted[middle]) / 2;
+    }
+
+    return sorted[middle];
+}
+
+// Measure execution time and return the query results.
 async function measure(label, queryFunction) {
     const start = performance.now();
 
@@ -133,97 +180,160 @@ async function measure(label, queryFunction) {
     return { duration, posts };
 }
 
-function verifyResults(original, optimized) {
-    if (original.length !== optimized.length) {
-        throw new Error("Post counts do not match!");
+// Compare two query results for correctness.
+function verifyResults(original, otherResults, label) {
+    if (original.length !== otherResults.length) {
+        throw new Error(
+            `${label}: Post counts do not match! ` +
+            `${original.length} vs ${otherResults.length}`
+        );
     }
 
-    const optimizedById = new Map(
-        optimized.map((post) => [post.id, post])
+    const originalById = new Map(
+        original.map((post) => [post.id, post])
     );
 
-    if (optimizedById.size !== optimized.length) {
-        throw new Error("Duplicate post IDs found!");
+    const otherById = new Map(
+        otherResults.map((post) => [post.id, post])
+    );
+
+    if (
+        originalById.size !== original.length ||
+        otherById.size !== otherResults.length
+    ) {
+        throw new Error(`${label}: Duplicate post IDs found!`);
     }
 
+    const fields = [
+        "user_id",
+        "title",
+        "content",
+        "image_path",
+        "created_at",
+        "username",
+        "display_name",
+        "avatar_path",
+        "commentCount",
+        "likeCount",
+        "dislikeCount"
+    ];
+
     for (const post of original) {
-        const other = optimizedById.get(post.id);
+        const other = otherById.get(post.id);
 
         if (!other) {
-            throw new Error(`Missing post: ${post.id}`);
+            throw new Error(`${label}: Missing post ${post.id}`);
         }
-
-        const fields = [
-            "user_id",
-            "title",
-            "content",
-            "image_path",
-            "created_at",
-            "username",
-            "display_name",
-            "avatar_path",
-            "commentCount",
-            "likeCount",
-            "dislikeCount"
-        ];
 
         for (const field of fields) {
             if (post[field] !== other[field]) {
                 throw new Error(
-                    `Mismatch on post ${post.id}, field ${field}: ` +
-                    `${post[field]} vs ${other[field]}`
+                    `${label}: Mismatch on post ${post.id}, ` +
+                    `field ${field}: ${post[field]} vs ${other[field]}`
                 );
             }
         }
     }
 }
 
+// Percentage reduction compared with a baseline.
+function percentageReduction(before, after) {
+    return ((before - after) / before) * 100;
+}
+
 async function main() {
-    const originalTimes = [];
-    const optimizedTimes = [];
+    const queries = [
+        { name: "Original", fn: originalQuery, times: [] },
+        { name: "Optimized", fn: optimizedQuery, times: [] },
+        { name: "PostsInfo", fn: postsInfoQuery, times: [] }
+    ];
 
-    console.log("Warming up both queries...\n");
+    console.log("Warming up all three queries...\n");
 
-    await originalQuery();
-    await optimizedQuery();
-
-    console.log("Starting benchmark...\n");
-
-    for (let round = 1; round <= ROUNDS; round++) {
-        console.log(`--- Round ${round} ---`);
-
-        const originalFirst = round % 2 === 1;
-
-        const first = originalFirst
-            ? await measure("Original ", originalQuery)
-            : await measure("Optimized", optimizedQuery);
-
-        const second = originalFirst
-            ? await measure("Optimized", optimizedQuery)
-            : await measure("Original ", originalQuery);
-
-        const original = originalFirst ? first : second;
-        const optimized = originalFirst ? second : first;
-
-        verifyResults(original.posts, optimized.posts);
-
-        originalTimes.push(original.duration);
-        optimizedTimes.push(optimized.duration);
-
-        console.log("Results match!\n");
+    for (const query of queries) {
+        await query.fn();
     }
 
-    const originalMedian = median(originalTimes);
-    const optimizedMedian = median(optimizedTimes);
+    console.log("Starting three-way benchmark...\n");
 
-    const improvement =
-        ((originalMedian - optimizedMedian) / originalMedian) * 100;
+    for (let round = 0; round < ROUNDS; round++) {
+        console.log(`--- Round ${round + 1} ---`);
+
+        // Rotate execution order every round.
+        // Example:
+        // Round 1: Original, Optimized, PostsInfo
+        // Round 2: Optimized, PostsInfo, Original
+        // Round 3: PostsInfo, Original, Optimized
+        const offset = round % queries.length;
+
+        const orderedQueries = [
+            ...queries.slice(offset),
+            ...queries.slice(0, offset)
+        ];
+
+        const results = new Map();
+
+        for (const query of orderedQueries) {
+            const result = await measure(query.name, query.fn);
+
+            results.set(query.name, result.posts);
+            query.times.push(result.duration);
+        }
+
+        // Verify both Views against the original query.
+        verifyResults(
+            results.get("Original"),
+            results.get("Optimized"),
+            "Optimized"
+        );
+
+        verifyResults(
+            results.get("Original"),
+            results.get("PostsInfo"),
+            "PostsInfo"
+        );
+
+        console.log("All three results match!\n");
+    }
+
+    const originalMedian = median(queries[0].times);
+    const optimizedMedian = median(queries[1].times);
+    const postsInfoMedian = median(queries[2].times);
+
+    const optimizedImprovement = percentageReduction(
+        originalMedian,
+        optimizedMedian
+    );
+
+    const postsInfoImprovement = percentageReduction(
+        originalMedian,
+        postsInfoMedian
+    );
+
+    const postsInfoVsOptimized = percentageReduction(
+        optimizedMedian,
+        postsInfoMedian
+    );
 
     console.log("========== FINAL RESULTS ==========");
     console.log(`Original median:  ${originalMedian.toFixed(1)} ms`);
     console.log(`Optimized median: ${optimizedMedian.toFixed(1)} ms`);
-    console.log(`Time reduction:   ${improvement.toFixed(1)}%`);
-    console.log("All five rounds returned matching results.");
+    console.log(`PostsInfo median: ${postsInfoMedian.toFixed(1)} ms`);
+
+    console.log("\n========== PERFORMANCE COMPARISON ==========");
+    console.log(
+        `Optimized vs Original:  ${optimizedImprovement.toFixed(1)}% reduction`
+    );
+    console.log(
+        `PostsInfo vs Original:  ${postsInfoImprovement.toFixed(1)}% reduction`
+    );
+    console.log(
+        `PostsInfo vs Optimized: ${postsInfoVsOptimized.toFixed(1)}% reduction`
+    );
+
+    console.log(
+        `\nAll ${ROUNDS} rounds returned matching results.`
+    );
 }
 
 main().catch((error) => {
