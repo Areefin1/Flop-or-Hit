@@ -233,7 +233,7 @@ function PostDetails() {
               }}
           >
               <img
-                  src={getAvatarImageUrl(post.avatar_path)}
+                  src={post.avatar_path ? getAvatarImageUrl(post.avatar_path) : "/default-profile.jpg"}
                   alt={`${post.username}'s avatar`}
                   className="post-avatar"
               />
@@ -339,7 +339,7 @@ function PostDetails() {
                     }}
                 >
                     <img
-                        src={getAvatarImageUrl(comment.avatar_path)}
+                        src={comment.avatar_path ? getAvatarImageUrl(comment.avatar_path) : "/default-profile.jpg"}
                         alt={`${comment.display_name || comment.username || "User"}'s avatar`}
                         className="comment-avatar"
                     />

@@ -74,7 +74,7 @@ function EditProfile()
                 {currentAvatarPath && !removeAvatar && (
                     <>
                         <img
-                            src={getAvatarImageUrl(currentAvatarPath)}
+                            src={currentAvatarPath ? getAvatarImageUrl(currentAvatarPath) : "/default-profile.jpg"}
                             alt="Current profile avatar"
                             className="profile-picture"
                         />

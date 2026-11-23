@@ -118,7 +118,7 @@ function HomeFeed({ searchTerm, sortOption }) {
                                 }}
                             >
                                 <img
-                                    src={getAvatarImageUrl(post.avatar_path)}
+                                    src={post.avatar_path ? getAvatarImageUrl(post.avatar_path) : "/default-profile.jpg"}
                                     alt={`${post.username}'s avatar`}
                                     className="post-avatar"
                                 />
